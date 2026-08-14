@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.log
+.gemini/
+*.tmp
+page_*_preview.png
+test_template_page_*.png

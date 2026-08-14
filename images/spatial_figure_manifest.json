@@ -1,0 +1,119 @@
+{
+  "John Dalton": {
+    "fig_key": "John Dalton",
+    "src": "images/john_dalton.png",
+    "caption": "John Dalton(1776\u20131884)",
+    "width_pt": 88.8,
+    "height_pt": 183.0,
+    "width_ratio_pct": 33,
+    "page": 16
+  },
+  "Fig. 1.1": {
+    "fig_key": "Fig. 1.1",
+    "src": "images/fig__1_1.png",
+    "caption": "Fig. 1.1\tArrangement of particles in solid, liquid and gaseous state",
+    "width_pt": 250.0,
+    "height_pt": 170.2,
+    "width_ratio_pct": 95,
+    "page": 5
+  },
+  "Fig. 1.2": {
+    "fig_key": "Fig. 1.2",
+    "src": "images/fig__1_2.png",
+    "caption": "Fig. 1.2 \u2003 Classification of matter",
+    "width_pt": 236.6,
+    "height_pt": 174.2,
+    "width_ratio_pct": 90,
+    "page": 5
+  },
+  "Fig. 1.3": {
+    "fig_key": "Fig. 1.3",
+    "src": "images/fig__1_3.png",
+    "caption": "Fig. 1.3\tA representation of atoms and molecules",
+    "width_pt": 250.0,
+    "height_pt": 183.0,
+    "width_ratio_pct": 95,
+    "page": 6
+  },
+  "Fig. 1.4": {
+    "fig_key": "Fig. 1.4",
+    "src": "images/fig__1_4.png",
+    "caption": "Fig. 1.4\tA depiction of molecules of water and carbon dioxide",
+    "width_pt": 250.0,
+    "height_pt": 136.9,
+    "width_ratio_pct": 95,
+    "page": 6
+  },
+  "Fig. 1.5": {
+    "fig_key": "Fig. 1.5",
+    "src": "images/fig__1_5.png",
+    "caption": "The mass of a substance can be determined accurately in the laboratory by using an analytical balance (Fig. 1.5).",
+    "width_pt": 250.0,
+    "height_pt": 183.0,
+    "width_ratio_pct": 95,
+    "page": 9
+  },
+  "Fig. 1.6": {
+    "fig_key": "Fig. 1.6",
+    "src": "images/fig__1_6.png",
+    "caption": "Fig. 1.6 \tDifferent units used to express volume",
+    "width_pt": 250.0,
+    "height_pt": 183.0,
+    "width_ratio_pct": 95,
+    "page": 9
+  },
+  "Fig. 1.7": {
+    "fig_key": "Fig. 1.7",
+    "src": "images/fig__1_7.png",
+    "caption": "Fig. 1.7\tSome volume measuring devices",
+    "width_pt": 246.7,
+    "height_pt": 183.0,
+    "width_ratio_pct": 94,
+    "page": 10
+  },
+  "Fig. 1.8": {
+    "fig_key": "Fig. 1.8",
+    "src": "images/fig__1_8.png",
+    "caption": "Fig. 1.8\tThermometers using different temperature scales",
+    "width_pt": 250.0,
+    "height_pt": 183.0,
+    "width_ratio_pct": 95,
+    "page": 10
+  },
+  "Fig. 1.9": {
+    "fig_key": "Fig. 1.9",
+    "src": "images/fig__1_9.png",
+    "caption": "Fig. 1.9  Two volumes of hydrogen react with one volume of oxygen to give two volumes of water vapour",
+    "width_pt": 490.0,
+    "height_pt": 170.3,
+    "width_ratio_pct": 95,
+    "page": 16
+  },
+  "Carreto": {
+    "fig_key": "Carreto",
+    "src": "images/carreto.png",
+    "caption": "Carreto(1776\u20131856)",
+    "width_pt": 110.8,
+    "height_pt": 183.0,
+    "width_ratio_pct": 42,
+    "page": 15
+  },
+  "Fig. 1.10": {
+    "fig_key": "Fig. 1.10",
+    "src": "images/fig__1_10.png",
+    "caption": "Fig. 1.10\u2003 Packing of  Na+ and Cl\u2013 ions",
+    "width_pt": 250.0,
+    "height_pt": 183.0,
+    "width_ratio_pct": 95,
+    "page": 17
+  },
+  "Fig. 1.11": {
+    "fig_key": "Fig. 1.11",
+    "src": "images/fig__1_11.png",
+    "caption": "Fig. 1.11\u2003 One mole of various substances",
+    "width_pt": 250.0,
+    "height_pt": 183.0,
+    "width_ratio_pct": 95,
+    "page": 18
+  }
+}

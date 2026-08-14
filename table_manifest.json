@@ -1,0 +1,274 @@
+[
+  {
+    "table_key": "Table 1.1",
+    "caption": "Table 1.1 Base Physical Quantities and their Units",
+    "headers": [
+      "Base Physical Quantity",
+      "Symbol for Quantity",
+      "Name of SI Unit",
+      "Symbol for SI Unit"
+    ],
+    "is_full_width": true,
+    "rows": [
+      [
+        "Length",
+        "l",
+        "metre",
+        "m"
+      ],
+      [
+        "Mass",
+        "m",
+        "kilogram",
+        "kg"
+      ],
+      [
+        "Time",
+        "t",
+        "second",
+        "s"
+      ],
+      [
+        "Electric current",
+        "I",
+        "ampere",
+        "A"
+      ],
+      [
+        "Thermodynamic temperature",
+        "T",
+        "kelvin",
+        "K"
+      ],
+      [
+        "Amount of substance",
+        "n",
+        "mole",
+        "mol"
+      ],
+      [
+        "Luminous intensity",
+        "Iv",
+        "candela",
+        "cd"
+      ]
+    ]
+  },
+  {
+    "table_key": "Table 1.2",
+    "caption": "Table 1.2 Definitions of SI Base Units",
+    "headers": [
+      "Physical Quantity",
+      "SI Unit",
+      "Definition"
+    ],
+    "is_full_width": true,
+    "rows": [
+      [
+        "Unit of length",
+        "metre",
+        "The metre, symbol m is the SI unit of length. It is defined by taking the fixed numerical value of the speed of light in vacuum c to be 299792458 when expressed in the unit ms\u20131, where the second is defined in terms of the caesium frequency \u0394\u03bdCs."
+      ],
+      [
+        "Unit of mass",
+        "kilogram",
+        "The kilogram, symbol kg, is the SI unit of mass. It is defined by taking the fixed numerical value of the Planck constant h to be 6.62607015\u00d710\u201334 when expressed in the unit Js, which is equal to kgm2s\u20131, where the metre and the second are defined in terms of c and \u0394\u03bdCs."
+      ],
+      [
+        "Unit of time",
+        "second",
+        "The second, symbol s, is the SI unit of time. It is defined by taking the fixed numerical value of the caesium frequency \u0394\u03bdCs, the unperturbed ground-state hyperfine transition frequency of the caesium-133 atom, to be 9192631770 when expressed in the unit Hz, which is equal to s\u20131."
+      ],
+      [
+        "Unit of electric current",
+        "ampere",
+        "The ampere, symbol A, is the SI unit of electric current. It is defined by taking the fixed numerical value of the elementary charge e to be 1.602176634\u00d710\u201319 when expressed in the unit C, which is equal to As, where the second is defined in terms of \u0394\u03bdCs."
+      ],
+      [
+        "Unit of thermodynamic temperature",
+        "kelvin",
+        "The kelvin, symbol K, is the SI unit of thermodynamic temperature. It is defined by taking the fixed numerical value of the Boltzmann constant k to be 1.380649\u00d710\u201323 when expressed in the unit JK\u20131, which is equal to kgm2s\u20132K\u20131 where the kilogram, metre and second are defined in terms of h, c and \u0394\u03bdCs."
+      ],
+      [
+        "Unit of amount of substance",
+        "mole",
+        "The mole, symbol mol, is the SI unit of amount of substance. One mole contains exactly 6.02214076\u00d71023 elementary entities. This number is the fixed numerical value of the Avogadro constant, NA, when expressed in the unit mol\u20131 and is called the Avogadro number. The amount of substance, symbol n, of a system is a measure of the number of specified elementary entities. An elementary entity may be an atom, a molecule, an ion, an electron, any other particle or specified group of particles."
+      ],
+      [
+        "Unit of luminous intensity",
+        "candela",
+        "The candela, symbol cd, is the SI unit of luminous intensity in a given direction. It is defined by taking the fixed numerical value of the luminous efficacy of monochromatic radiation of frequency 540\u00d71012 Hz, Kcd, to be 683 when expressed in the unit lm W\u20131, which is equal to cd sr W\u20131, or cd sr kg\u20131 m\u20132 s3, where the kilogram, metre and second are defined in terms of h, c and \u0394\u03bdCs."
+      ]
+    ]
+  },
+  {
+    "table_key": "Table 1.3",
+    "caption": "Table 1.3 Prefixes used in the SI System",
+    "headers": [
+      "Multiple",
+      "Prefix",
+      "Symbol"
+    ],
+    "is_full_width": false,
+    "rows": [
+      [
+        "10\u207b\u00b2\u2074",
+        "yocto",
+        "y"
+      ],
+      [
+        "10\u207b\u00b2\u00b9",
+        "zepto",
+        "z"
+      ],
+      [
+        "10\u207b\u00b9\u2078",
+        "atto",
+        "a"
+      ],
+      [
+        "10\u207b\u00b9\u2075",
+        "femto",
+        "f"
+      ],
+      [
+        "10\u207b\u00b9\u00b2",
+        "pico",
+        "p"
+      ],
+      [
+        "10\u207b\u2079",
+        "nano",
+        "n"
+      ],
+      [
+        "10\u207b\u2076",
+        "micro",
+        "\u00b5"
+      ],
+      [
+        "10\u207b\u00b3",
+        "milli",
+        "m"
+      ],
+      [
+        "10\u207b\u00b2",
+        "centi",
+        "c"
+      ],
+      [
+        "10\u207b\u00b9",
+        "deci",
+        "d"
+      ],
+      [
+        "10\u00b9",
+        "deca",
+        "da"
+      ],
+      [
+        "10\u00b2",
+        "hecto",
+        "h"
+      ],
+      [
+        "10\u00b3",
+        "kilo",
+        "k"
+      ],
+      [
+        "10\u2076",
+        "mega",
+        "M"
+      ],
+      [
+        "10\u2079",
+        "giga",
+        "G"
+      ],
+      [
+        "10\u00b9\u00b2",
+        "tera",
+        "T"
+      ],
+      [
+        "10\u00b9\u2075",
+        "peta",
+        "P"
+      ],
+      [
+        "10\u00b9\u2078",
+        "exa",
+        "E"
+      ],
+      [
+        "10\u00b2\u00b9",
+        "zetta",
+        "Z"
+      ],
+      [
+        "10\u00b2\u2074",
+        "yotta",
+        "Y"
+      ]
+    ]
+  },
+  {
+    "table_key": "Table 1.4",
+    "caption": "Table 1.4 Data to Illustrate Precision and Accuracy",
+    "headers": [
+      "Measurements",
+      "1",
+      "2",
+      "Average (g)"
+    ],
+    "is_full_width": false,
+    "rows": [
+      [
+        "Student A",
+        "1.95",
+        "1.93",
+        "1.940"
+      ],
+      [
+        "Student B",
+        "1.94",
+        "2.05",
+        "1.995"
+      ],
+      [
+        "Student C",
+        "2.01",
+        "1.99",
+        "2.000"
+      ]
+    ]
+  },
+  {
+    "table_key": "Isotope_Table",
+    "caption": "",
+    "headers": [
+      "Isotope",
+      "Relative Abundance (%)",
+      "Atomic Mass (amu)"
+    ],
+    "is_full_width": false,
+    "rows": [
+      [
+        "12C",
+        "98.892",
+        "12"
+      ],
+      [
+        "13C",
+        "1.108",
+        "13.00335"
+      ],
+      [
+        "14C",
+        "2 \u00d7 10\u207b\u00b9\u00b2",
+        "14.00317"
+      ]
+    ]
+  }
+]
