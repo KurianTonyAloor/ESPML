@@ -75,17 +75,17 @@
 
   Liquids have definite volume but do not have definite shape. They take the shape of the container in which they are placed.
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.1 Arrangement of particles in solid, liquid and gaseous state]]
+  #ncert-h2("Fig. 1.1 Arrangement of particles in solid, liquid and gaseous state")
 
   Gases have neither definite volume nor definite shape. They completely occupy the space in the container in which they are placed.
 
   These three states of matter are interconvertible by changing the conditions of temperature and pressure.
 
-  #ncert-h2("Solid  liquid  Gas")
+  Solid  liquid  Gas
 
   On heating, a solid usually changes to a liquid, and the liquid on further heating changes to gas (or vapour). In the reverse process, a gas on cooling liquifies to the liquid and the liquid on further cooling freezes to the solid.
 
-  1.2.2.	Classification	of	Matter
+  #ncert-h2("1.2.2.	Classification	of	Matter")
 
   In Class IX (Chapter 2), you have learnt that at the macroscopic or bulk level, matter can be classified as mixture or pure substance. These can be further sub-divided as shown in Fig. 1.2.
 
@@ -95,7 +95,7 @@
 
   a mixture contains particles of two or more pure substances which may be present in it in any ratio. Hence, their composition is variable. Pure substances forming mixture are called its components. Many of the substances present around you are mixtures. For example, sugar solution in water, air, tea, etc., are all mixtures. A mixture may be homogeneous or heterogeneous. In a homogeneous mixture, the components
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.2  Classification of matter]]
+  #ncert-h2("Fig. 1.2  Classification of matter")
 
   completely mix with each other. This means particles of components of the mixture are uniformly distributed throughout the bulk of the mixture and its composition is uniform throughout. Sugar solution and air are the examples of homogeneous mixtures. In contrast to this, in a heterogeneous mixture, the composition is not uniform throughout and sometimes different components are visible. For example, mixtures of salt and sugar, grains and pulses along with some dirt (often stone pieces), are heterogeneous mixtures. You can think of many more examples of mixtures which you come across in the daily life. It is worthwhile to mention here that the components of a mixture can be separated by using physical methods, such as simple hand-picking, filtration, crystallisation, distillation, etc.
 
@@ -105,7 +105,7 @@
 
   #ncert-figure("./images/fig__1_3.png", caption: "", width: 95%)
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.3 	A representation of atoms and molecules]]
+  #ncert-h2("Fig. 1.3 	A representation of atoms and molecules")
 
   When two or more atoms of  different elements combine together in a definite ratio, the molecule of a compound is obtained. Moreover, the constituents of a compound cannot be separated into simpler substances by physical methods. They can be separated by chemical methods. Examples of some compounds are water, ammonia, carbon dioxide, sugar, etc. The molecules of water and carbon dioxide are represented in Fig. 1.4.
 
@@ -115,9 +115,9 @@
 
   Water molecule 	Carbon dioxide
 
-  #ncert-h2("(H2O) 	molecule (CO2)")
+  (H2O) 	molecule (CO2)
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.4 A depiction of molecules of water and carbon dioxide]]
+  #ncert-h2("Fig. 1.4 A depiction of molecules of water and carbon dioxide")
 
   elements are present in a compound in a fixed and definite ratio and this ratio is characteristic of a particular compound. Also, the properties of a compound are different from those of its constituent elements. For example, hydrogen and oxygen are gases, whereas, the compound formed by their combination i.e., water is a liquid. It is interesting to note that hydrogen burns with a pop sound and oxygen is a supporter of combustion, but water is used as a fire extinguisher.
 
@@ -148,7 +148,7 @@
 #ncert-table(caption: "Table 1.1 Base Physical Quantities and their Units", headers: ("Length", "l", "metre", "m"), rows: (("Mass", "m", "kilogram", "kg"), ("Time", "t", "second", "s"), ("Electric current", "I", "ampere", "A"), ("Thermodynamic temperature", "T", "kelvin", "K"), ("Amount of substance", "n", "mole", "mol"), ("Luminous intensity", "Iv", "candela", "cd")), width: 100%)
 
 #columns(2, gutter: 15pt)[
-  #ncert-h2("table 1.1  Base physical Quantities and their Units")
+  table 1.1  Base physical Quantities and their Units
 
   #ncert-table(caption: "Table 1.3 Prefixes used in the SI System", headers: ("10⁻²⁴", "yocto", "y"), rows: (("10⁻²¹", "zepto", "z"), ("10⁻¹⁸", "atto", "a"), ("10⁻¹⁵", "femto", "f"), ("10⁻¹²", "pico", "p"), ("10⁻⁹", "nano", "n"), ("10⁻⁶", "micro", "µ"), ("10⁻³", "milli", "m"), ("10⁻²", "centi", "c"), ("10⁻¹", "deci", "d"), ("10¹", "deca", "da"), ("10²", "hecto", "h"), ("10³", "kilo", "k"), ("10⁶", "mega", "M"), ("10⁹", "giga", "G"), ("10¹²", "tera", "T"), ("10¹⁵", "peta", "P"), ("10¹⁸", "exa", "E"), ("10²¹", "zetta", "Z"), ("10²⁴", "yotta", "Y")), width: 100%)
 
@@ -159,17 +159,17 @@
 #columns(2, gutter: 15pt)[
   The SI system allows the use of prefixes to the quantities which you will be often using indicate the multiples or submultiples of a unit. in this book.
 
-  Table	1.2		Definitions	of	SI	Base	Units
+  #ncert-h2("Table	1.2		Definitions	of	SI	Base	Units")
 
-  #ncert-h2("Table	1.3		Prefixes	used	in	the	SI	System")
+  Table	1.3		Prefixes	used	in	the	SI	System
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.5   Analytical balance]]
-
-  #ncert-figure("./images/fig__1_5.png", caption: "", width: 95%)
+  #ncert-h2("Fig. 1.5   Analytical balance")
 
   #ncert-h2("1.3.4 mass and Weight mass of a substance is the amount of matter present in it, while weight is the force exerted by gravity on an object. The mass of a substance is constant, whereas, its weight may vary from one place to another due to change in gravity. You should be careful in using these terms.")
 
   #align(center)[#text(style: "italic", size: 8.5pt)[The mass of a substance can be determined accurately in the laboratory by using an analytical balance (Fig. 1.5).]]
+
+  #ncert-figure("./images/fig__1_5.png", caption: "", width: 95%)
 
   The SI unit of mass as given in Table 1.1 is kilogram. However, its fraction named as gram (1 kg = 1000 g), is used in laboratories due to the smaller amounts of chemicals used in chemical reactions.
 
@@ -185,25 +185,25 @@
 
   #ncert-figure("./images/fig__1_6.png", caption: "", width: 95%)
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.6  Different units used to express volume]]
+  #ncert-h2("Fig. 1.6  Different units used to express volume")
 
   In the laboratory, the volume of liquids or solutions can be measured by graduated cylinder, burette, pipette, etc. A volumetric flask  is used to prepare a known volume of a solution. These measuring devices are shown in Fig. 1.7.
 
   #ncert-figure("./images/fig__1_7.png", caption: "", width: 94%)
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.7 Some volume measuring devices]]
+  #ncert-h2("Fig. 1.7 Some volume measuring devices")
 
   #ncert-h2("1.3.6 Density")
 
   The two properties — mass and volume discussed above are related as follows:
 
-  #ncert-h2("Mass Density = Volume")
+  Mass Density = Volume
 
   Density of a substance is its amount of mass per unit volume. So, SI units of density can be obtained as follows:
 
   SI unit of density =
 
-  #ncert-h2("= 	3")
+  = 	3
 
   This unit is quite large and a chemist often expresses density in g cm–3, where mass is expressed in gram and volume is expressed in cm3. Density of a substance tells us about how closely its particles are packed. If density is more, it means particles are more closely packed.
 
@@ -215,7 +215,7 @@
 
   The temperatures on two scales are related to each other by the following relationship:
 
-  #ncert-h2("F C  32")
+  F C  32
 
   The kelvin scale is related to celsius scale as follows:
 
@@ -223,7 +223,7 @@
 
   It is interesting to note that temperature below 0 °C (i.e., negative values) are possible in Celsius scale but in Kelvin scale, negative temperature is not possible.
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.8 Thermometers using different temperature scales]]
+  #ncert-h2("Fig. 1.8 Thermometers using different temperature scales")
 
   #ncert-h1("1.4 Uncertainty in meaSUrement")
 
@@ -241,7 +241,7 @@
 
   Thus, we can write 232.508 as
 
-  2.32508 × 102 in scientific notation. Note that while writing it, the decimal had to be moved to the left by two places and same is the exponent (2) of 10 in the scientific notation.
+  #ncert-h2("2.32508 × 102 in scientific notation. Note that while writing it, the decimal had to be moved to the left by two places and same is the exponent (2) of 10 in the scientific notation.")
 
   Similarly, 0.00016 can be written as 1.6 × 10–4. Here, the decimal has to be moved four places to the right and (–4) is the exponent in the scientific notation.
 
@@ -251,7 +251,7 @@
 
   These two operations follow the same rules which are there for exponential numbers, i.e. mass obtained by an analytical balance is slightly higher than the mass obtained by using a platform balance. Therefore, digit 4 placed after decimal in the measurement by
 
-  #ncert-h2("5 6. 105  6 9. 108=5 6.  6 9. 105 8")
+  5 6. 105  6 9. 108=5 6.  6 9. 105 8
 
   =5 6.  6 9.  1013
 
@@ -259,7 +259,7 @@
 
   = 3.864  1014
 
-  #ncert-h2("9 8. 102  2 5. 106=9 8.  2 5. 10  2  6")
+  9 8. 102  2 5. 106=9 8.  2 5. 10  2  6
 
   =9 8.  2 5. 10 2 6
 
@@ -283,7 +283,7 @@ Step 5. Writing molecular formula
 
 Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
-  #ncert-h2("=2 7.  5 5. 10 3 4=0.4909  107 5.")
+  =2 7.  5 5. 10 3 4=0.4909  107 5.
 
   =4.909  108
 
@@ -315,13 +315,13 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   Zeros preceding to first non-zero digit are not significant. Such zero indicates the position of decimal point. Thus, 0.03 has one significant figure and
 
-  0.0052 has two significant figures.
+  #ncert-h2("0.0052 has two significant figures.")
 
   Zeros between two non-zero digits are significant. Thus, 2.005 has four significant figures.
 
   Zeros at the end or right of a number are significant, provided they are on the right side of the decimal point. For example, 0.200 g has three significant figures. But, if otherwise, the terminal zeros are not significant if there is no decimal point. For example, 100 has only one significant figure, but 100 has three significant figures and 100.0 has four significant figures. Such numbers are better represented in scientific notation. We can express the number 100 as 1×102 for one significant figure, 1.0×102 for two significant figures and
 
-  1.00×102 for three significant figures.
+  #ncert-h2("1.00×102 for three significant figures.")
 
   Counting the numbers of object, for example, 2 balls or 20 eggs, have infinite significant figures as these are exact numbers and can be represented by writing infinite number of zeros after placing a decimal i.e., 2 = 2.000000 or 20 = 20.000000.
 
@@ -337,11 +337,11 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   numbers.  	12.11
 
-  18.0
+  #ncert-h2("18.0")
 
-  1.012
+  #ncert-h2("1.012")
 
-  #text(weight: "bold", fill: rgb("#990033"))[31.122]
+  #ncert-h2("31.122")
 
   Here, 18.0 has only one digit after the decimal point and the result should be reported only up to one digit after the decimal point, which is 31.1.
 
@@ -349,7 +349,7 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   In these operations, the result must be reported with no more significant figures as in the measurement with the few significant figures.
 
-  #text(weight: "bold", fill: rgb("#990033"))[2.5×1.25 = 3.125]
+  #ncert-h2("2.5×1.25 = 3.125")
 
   Since 2.5 has two significant figures, the result should not have more than two significant figures, thus, it is 3.1.
 
@@ -371,55 +371,55 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   From this equivalence, we can write
 
-  #ncert-h2("in	2 54.	cm")
+  in	2 54.	cm
 
   = =1
 
-  #ncert-h2("54.	cm	1 in")
+  54.	cm	1 in
 
   in	2 54.	cm
 
   Thus, 	 equals 1 and
 
-  #ncert-h2("54.	cm	1 in")
+  54.	cm	1 in
 
   also equals 1. Both of these are called unit factors. If some number is multiplied by these unit factors (i.e., 1), it will not be affected otherwise.
 
   Say, the 3 in given above is multiplied by the unit factor. So,
 
-  #ncert-h2("2 54.	cm")
+  2 54.	cm
 
   in = 3 in × = 3 × 2.54 cm = 7.62 cm 1 in
 
   Now, the unit factor by which multiplication
 
-  #ncert-h2("2 54.	cm")
+  2 54.	cm
 
   is to be done is that unit factor ( in 1 in
 
   the above case) which gives the desired units i.e., the numerator should have that part which  is required in the desired result.
 
-  #ncert-h2("It should also be noted in the above example that units can be handled just like other numerical part. It can be cancelled, divided, multiplied, squared, etc. Let us study one more example. example")
+  It should also be noted in the above example that units can be handled just like other numerical part. It can be cancelled, divided, multiplied, squared, etc. Let us study one more example. example
 
   A jug contains 2L of milk. Calculate the volume of the milk in m3.
 
   Since 1 L = 1000 cm3 and 1m = 100 cm, which gives
 
-  #ncert-h2("1 m	100cm")
+  1 m	100cm
 
   = =1
 
-  #ncert-h2("100 cm	1m")
+  100 cm	1m
 
   To get m3 from the above unit factors, the first unit factor is taken and it is cubed.
 
-  #ncert-h2("1m 3	1m3	 3")
+  1m 3	1m3	 3
 
   100cm  106 cm3  1 1
 
   Now 2 L = 2 ×1000 cm3
 
-  #ncert-h2("The above is multiplied by the unit factor 2 1000 cm3 1016mcm3 3  210m33  2 103m3")
+  The above is multiplied by the unit factor 2 1000 cm3 1016mcm3 3  210m33  2 103m3
 
   #ncert-h2("example")
 
@@ -427,7 +427,7 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   Here, we know 1 day = 24 hours (h)
 
-  #ncert-h2("1day	24h")
+  1day	24h
 
   or 	 = =1
 
@@ -435,7 +435,7 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   or 	1h	= =1	60min
 
-  #ncert-h2("60min	1h")
+  60min	1h
 
   so, for converting 2 days to seconds,
 
@@ -443,9 +443,9 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   The unit factors can be multiplied in series in one step only as follows:
 
-  #ncert-h2("2day× 24h × 60 min × 60s")
+  2day× 24h × 60 min × 60s
 
-  #ncert-h2("1day	1 h	1 min")
+  1day	1 h	1 min
 
   = 2 × 24 × 60 × 60 s
 
@@ -461,7 +461,7 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   #ncert-h2("1.5.2		Law	of	Definite	Proportions")
 
-  #ncert-h2("This law was given by, a French chemist, Joseph")
+  This law was given by, a French chemist, Joseph
 
   Proust. He stated that a given compound always contains exactly the same proportion of elements by weight.
 
@@ -477,17 +477,17 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   Hydrogen + Oxygen → Water
 
-  #ncert-h2("2g              16g            18g")
+  2g              16g            18g
 
   Hydrogen + Oxygen → Hydrogen Peroxide
 
-  #ncert-h2("2g              32g             34g")
+  2g              32g             34g
 
   Here, the masses of oxygen (i.e., 16 g and 32 g), which combine with a fixed mass of hydrogen (2g) bear a simple ratio, i.e., 16:32 or 1: 2.
 
   #ncert-h2("1.5.4 Gay lussac’s law of Gaseous  	volumes")
 
-  #ncert-h2("This law was given by Gay Lussac in 1808. He observed that when gases combine or are produced in a chemical reaction they do so in a simple ratio by volume, provided all gases are at the same temperature and pressure.")
+  This law was given by Gay Lussac in 1808. He observed that when gases combine or are produced in a chemical reaction they do so in a simple ratio by volume, provided all gases are at the same temperature and pressure.
 
   Thus, 100 mL of hydrogen Joseph Louis combine with 50 mL of Gay Lussac oxygen to give 100 mL of water vapour.
 
@@ -503,7 +503,9 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   In 1811, Avogadro proposed that equal volumes of all gases at the same temperature and pressure should contain equal number of molecules. Avogadro made a distinction between atoms and molecules which is quite understandable in present times. If we consider again the reaction of hydrogen and oxygen to produce water, we see that two volumes of hydrogen combine with one volume of oxygen to give two volumes of water without leaving any unreacted oxygen.
 
-  #ncert-h2("Note that in the Fig. 1.9 (Page 16) each box contains equal number of molecules. In fact, Avogadro could explain the above result by considering the molecules to be polyatomic. If hydrogen and oxygen were considered as diatomic as recognised now, then the above results Lorenzo Romano are easily understandable. Amedeo Carlo")
+  Note that in the Fig. 1.9 (Page 16) each box contains equal number of molecules. In fact, Avogadro could explain the above result by considering the molecules to be polyatomic. If hydrogen and oxygen were considered as diatomic as recognised now, then the above results Lorenzo Romano are easily understandable. Amedeo Carlo
+
+  #ncert-figure("./images/fig__1_9.png", caption: "", width: 95%)
 
   However, Dalton and others 	Avogadro di
 
@@ -513,7 +515,7 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   #ncert-h1("1.6 Dalton’S atomic theory")
 
-  #ncert-h2("Although the origin of the idea that matter is composed of small indivisible particles called ‘a-tomio’ (meaning, indivisible), dates back to the time of Democritus, a Greek Philosopher (460– 370 BC), it again started emerging as a result of several experimental studies which led to the laws mentioned above.")
+  Although the origin of the idea that matter is composed of small indivisible particles called ‘a-tomio’ (meaning, indivisible), dates back to the time of Democritus, a Greek Philosopher (460– 370 BC), it again started emerging as a result of several experimental studies which led to the laws mentioned above.
 
   In 1808, Dalton published John Dalton ‘A New System of Chemical (1776–1884) Philosophy’, in which he proposed the following : 1. Matter consists of indivisible atoms.
 
@@ -525,7 +527,7 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   Dalton’s theory could explain the laws of chemical combination. However, it could not explain the laws of gaseous volumes. It could not provide the reason for combining of atoms, which was answered later by other scientists.
 
-  1.7 atomic anD molecUlar maSSeS
+  #ncert-h2("1.7 atomic anD molecUlar maSSeS")
 
   After having some idea about the terms atoms and molecules, it is appropriate here to understand what do we mean by atomic and molecular masses.
 
@@ -539,7 +541,7 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   = 1.6736×10–24 g
 
-  #ncert-h2("Thus, in terms of amu, the mass of hydrogen atom     =")
+  Thus, in terms of amu, the mass of hydrogen atom     =
 
   = 1.0078 amu
 
@@ -581,7 +583,7 @@ Empirical formula = CH2Cl, n = 2. Hence molecular formula is C2H4Cl2.])
 
   #ncert-figure("./images/fig__1_10.png", caption: "", width: 95%)
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.10 Packing of  Na+ and Cl– ions in sodium chloride]]
+  #ncert-h2("Fig. 1.10 Packing of  Na+ and Cl– ions in sodium chloride")
 
   It may be noted that in sodium chloride, one Na+ ion is surrounded by six Cl– ion and vice-versa.
 
@@ -599,7 +601,7 @@ Molecular mass of glucose (C6H12O6) = 6 (12.011 u) + 12 (1.008 u) +             
 
   = 6 (12.011 u) + 12 (1.008 u) +
 
-  #text(weight: "bold", fill: rgb("#990033"))[6 (16.00 u)]
+  6 (16.00 u)
 
   = (72.066 u) + (12.096 u) +
 
@@ -607,7 +609,7 @@ Molecular mass of glucose (C6H12O6) = 6 (12.011 u) + 12 (1.008 u) +             
 
   =  180.162 u
 
-  1.8 mole concept anD molar maSSeS
+  #ncert-h2("1.8 mole concept anD molar maSSeS")
 
   Atoms and molecules are extremely small in size and their numbers in even a small amount of any substance is really very large. To handle such large numbers, a unit of convenient magnitude is required.
 
@@ -617,7 +619,7 @@ Molecular mass of glucose (C6H12O6) = 6 (12.011 u) + 12 (1.008 u) +             
 
   The mole, symbol mol, is the SI unit of amount of substance. One mole contains exactly 6.02214076 × 1023 elementary entities. This number is the fixed numerical value of the Avogadro constant, NA, when expressed in the unit mol– and is called the Avogadro number. The amount of substance, symbol n, of a system is a measure of the number of specified elementary entities. An elementary entity may be an atom, a molecule, an ion, an electron, any other particle or specified group of particles. It may be emphasised that the mole of a substance always contains the same number of entities, no matter what the substance may be. In order to determine this number precisely, the mass of a carbon–12 atom was determined by a mass spectrometer and found to be equal to 1.992648 × 10–23 g. Knowing that one mole of carbon weighs 12 g, the number of atoms in it is equal to:
 
-  #ncert-h2("12g mol/	12C")
+  12g mol/	12C
 
   This number of entities in 1 mol is so important that it is given a separate name and symbol. It is known as ‘avogadro constant’, or Avogadro number denoted by NA in honour of Amedeo Avogadro. To appreciate the largeness of this number, let us write it with all zeroes without using any powers of ten. 602213670000000000000000
 
@@ -635,13 +637,11 @@ Molecular mass of glucose (C6H12O6) = 6 (12.011 u) + 12 (1.008 u) +             
 
   Molar mass of sodium chloride = 58.5 g mol–1
 
-  1.9 percentaGe compoSition
+  #ncert-h2("1.9 percentaGe compoSition")
 
   So far, we were dealing with the number of entities present in a given sample. But many a time, information regarding the percentage of a particular element present in a compound is required. Suppose, an unknown or new compound is given to you, the first question
 
-  #align(center)[#text(style: "italic", size: 8.5pt)[Fig. 1.11 One mole of various substances]]
-
-  #ncert-figure("./images/fig__1_11.png", caption: "", width: 95%)
+  #ncert-h2("Fig. 1.11 One mole of various substances")
 
   you would ask is:  what is its formula or what are its constituents and in what ratio are they present in the given compound? For known compounds also, such information provides a check  whether the given sample contains the same percentage of elements as present in a pure sample. In other words, one can check the purity of a given sample by analysing this data.
 
@@ -653,7 +653,7 @@ Molecular mass of glucose (C6H12O6) = 6 (12.011 u) + 12 (1.008 u) +             
 
   Molar mass of water   = 18.02 g
 
-  #ncert-h2("Mass % of hydrogen   =")
+  Mass % of hydrogen   =
 
   =  11.18 Mass % of oxygen       =   ×100
 
@@ -840,39 +840,39 @@ If they are to be converted to grams, it is done as follows :
 
 . g NHgmol NHg])
 
-  #ncert-h2("= 50.0kgN2 ×1000gN2 × 1molN2 1kgN2	28.0gN2")
+  = 50.0kgN2 ×1000gN2 × 1molN2 1kgN2	28.0gN2
 
-  #ncert-h2("= 10 00.	kgH2 ×1000gH2 × 1molH2")
+  = 10 00.	kgH2 ×1000gH2 × 1molH2
 
-  #ncert-h2("1kgH2	2.016gH2")
+  1kgH2	2.016gH2
 
   = 4.96 × 103 mol
 
-  #ncert-h2("2 molN2 3molH2g")
+  2 molN2 3molH2g
 
-  #ncert-h2("17 86 10.  1molN2 g")
+  17 86 10.  1molN2 g
 
-  #ncert-h2("3	2molNH3 g")
+  3	2molNH3 g
 
-  #ncert-h2("3molH2 g")
+  3molH2 g
 
-  #ncert-h2("3	17. gNH0	3 g")
+  3	17. gNH0	3 g
 
   #ncert-problem-box(title: "= 3.30×103×17 g NH3 (g)", [= 56.1×103 g NH3= 56.1 kg NH3])
 
-  #ncert-h2("1.  Mass per cent")
+  1.  Mass per cent
 
   It is obtained by using the following relation:
 
-  #ncert-h2("2.  Mole Fraction")
+  2.  Mole Fraction
 
   It is the ratio of number of moles of a particular component to the total number of moles of the solution. If a substance ‘A’ dissolves in substance ‘B’ and their number of moles are nA and nB, respectively, then the mole fractions of A and B are given as:
 
-  #ncert-h2("3.  Molarity")
+  3.  Molarity
 
   It is the most widely used unit and is denoted by M. It is defined as the number of moles of the solute in 1 litre of the solution. Thus,
 
-  #ncert-h2("No. of moles of solute Molarity (M) =")
+  No. of moles of solute Molarity (M) =
 
   1 M NaOH means 1 mol of NaOH present in 1 litre of the solution. For 0.2 M solution, we require 0.2 moles of NaOH dissolved in 1 litre solution.
 
@@ -882,7 +882,7 @@ If they are to be converted to grams, it is done as follows :
 
   then, 0.2 mol is present in
 
-  #ncert-h2("1000mL")
+  1000mL
 
   Thus, 200 mL of 1M NaOH are taken and enough water is added to dilute it to make it 1 litre.
 
@@ -892,7 +892,7 @@ If they are to be converted to grams, it is done as follows :
 
   Note that the number of moles of solute (NaOH) was 0.2 in 200 mL and it has remained the same, i.e.,  0.2 even after dilution ( in 1000 mL) as we have changed just the amount of solvent (i.e., water) and have not done anything with respect to NaOH. But keep in mind the concentration.
 
-  #ncert-h2("4.  Molality")
+  4.  Molality
 
   It is defined as the number of moles of solute present in 1 kg of solvent. It is denoted by m. No. of moles of solute
 
@@ -900,7 +900,7 @@ If they are to be converted to grams, it is done as follows :
 
   Mass of solvent in kg
 
-  #ncert-h2("The study of chemistry is very important as its domain encompasses every sphere of life. Chemists study the properties and structure of substances and the changes undergone by them. All substances contain matter, which can exist in three states – solid, liquid or gas. The constituent particles are held in different ways in these states of matter and they exhibit their characteristic properties. Matter can also be classified into elements, compounds or mixtures. An element contains particles of only one type,")
+  The study of chemistry is very important as its domain encompasses every sphere of life. Chemists study the properties and structure of substances and the changes undergone by them. All substances contain matter, which can exist in three states – solid, liquid or gas. The constituent particles are held in different ways in these states of matter and they exhibit their characteristic properties. Matter can also be classified into elements, compounds or mixtures. An element contains particles of only one type,
 
   . The compounds are formed where atoms of two or
 
@@ -912,13 +912,13 @@ If they are to be converted to grams, it is done as follows :
 
   is taken care of by specifying the number of
 
-  in which the observations are reported. The dimensional analysis
+  #ncert-h2("in which the observations are reported. The dimensional analysis")
 
   the measured quantities in different systems of units. Hence, it is possible to interconvert the results from one system of units to another.
 
   The combination of different atoms is governed by basic laws of chemical combination onservation of mass, Law	of
 
-  ussac’s law of Gaseous v
+  #ncert-h2("ussac’s law of Gaseous v")
 
   Dalton’s atomic theory, which states that atoms are building blocks of an element is expressed relative to
 
@@ -926,7 +926,7 @@ If they are to be converted to grams, it is done as follows :
 
   the atomic masses of different atoms present in a molecule. The calculated by determining the mass per cent of different elements present in a compound
 
-  #ncert-h2("The number of atoms, molecules or any other particles present in a given system are vogadro constant (6.022 × 10")
+  The number of atoms, molecules or any other particles present in a given system are vogadro constant (6.022 × 10
 
   Chemical reactions represent the chemical changes undergone by different elements and  chemical equation provides a lot of information. The coefficients
 
@@ -936,7 +936,7 @@ If they are to be converted to grams, it is done as follows :
 
   required to produce a particular amount of product can be determined and vice-versa. The amount of substance present in a given volume of a solution is expressed in number of ways, e.g., mass per cent, mole fraction, molarity and molality.
 
-  exerciSeS
+  #ncert-h2("exerciSeS")
 
   #ncert-h1("1.1 	Calculate the molar mass of the following:")
 
@@ -952,7 +952,7 @@ If they are to be converted to grams, it is done as follows :
 
   #ncert-h1("1.5 	Calculate the mass of sodium acetate (CH3COONa) required to make 500 mL of")
 
-  #ncert-h2("Calculate the concentration of nitric acid in moles per litre in a sample which has a density, 1.41 g mL–1 and the mass per cent of nitric acid in it being 69%.")
+  Calculate the concentration of nitric acid in moles per litre in a sample which has a density, 1.41 g mL–1 and the mass per cent of nitric acid in it being 69%.
 
   How much copper can be obtained from 100 g of copper sulphate (CuSO4)?
 
@@ -964,7 +964,7 @@ If they are to be converted to grams, it is done as follows :
 
   35Cl 	 	 	 	75.77  	 	  34.9689
 
-  #ncert-h2("37Cl 	 	 	 	24.23  	 	  36.9659")
+  37Cl 	 	 	 	24.23  	 	  36.9659
 
   In three moles of ethane (C2H6), calculate the following:
 
@@ -980,11 +980,11 @@ If they are to be converted to grams, it is done as follows :
 
   Pressure is determined as force per unit area of the surface. The SI unit of pressure, pascal is as shown below:
 
-  #ncert-h2("1Pa  =  1N m–2")
+  1Pa  =  1N m–2
 
   If mass of air at sea level is 1034 g cm–2, calculate the pressure in pascal.
 
-  #ncert-h2("Match the following prefixes with their multiples:")
+  Match the following prefixes with their multiples:
 
   #ncert-h2("Prefixes	Multiples")
 
@@ -1008,37 +1008,37 @@ If they are to be converted to grams, it is done as follows :
 
   #ncert-h1("1.18 	Express the following in the scientific notation:")
 
-  0.0048
+  #ncert-h2("0.0048")
 
-  #text(weight: "bold", fill: rgb("#990033"))[234,000]
+  234,000
 
   8008
 
-  500.0
+  #ncert-h2("500.0")
 
-  6.0012
+  #ncert-h2("6.0012")
 
   #ncert-h1("1.19 	How many significant figures are present in the following?")
 
-  0.0025
+  #ncert-h2("0.0025")
 
   208
 
   5005
 
-  #ncert-h2("126,000")
+  126,000
 
-  500.0
+  #ncert-h2("500.0")
 
-  2.0034
+  #ncert-h2("2.0034")
 
   #ncert-h1("1.20 	Round up the following upto three significant figures:")
 
-  34.216
+  #ncert-h2("34.216")
 
-  #text(weight: "bold", fill: rgb("#990033"))[10.4107]
+  #ncert-h2("10.4107")
 
-  #text(weight: "bold", fill: rgb("#990033"))[0.04597]
+  #ncert-h2("0.04597")
 
   2808
 
@@ -1070,17 +1070,17 @@ If they are to be converted to grams, it is done as follows :
 
   300 atoms of A + 200 molecules of B
 
-  #text(weight: "bold", fill: rgb("#990033"))[2 mol A + 3 mol B]
+  2 mol A + 3 mol B
 
   100 atoms of A + 100 molecules of B
 
-  #text(weight: "bold", fill: rgb("#990033"))[5 mol A + 2.5 mol B]
+  5 mol A + 2.5 mol B
 
-  #text(weight: "bold", fill: rgb("#990033"))[2.5 mol A + 5 mol B]
+  #ncert-h2("2.5 mol A + 5 mol B")
 
   #ncert-h1("1.24 Dinitrogen and dihydrogen react with each other to produce ammonia according to the following chemical equation:")
 
-  #ncert-h2("N2 (g) + H2 (g)    2NH3 (g)")
+  N2 (g) + H2 (g)    2NH3 (g)
 
   Calculate the mass of ammonia produced if 2.00 × 103 g dinitrogen reacts   	with 1.00 × 103 g of dihydrogen.
 
@@ -1092,9 +1092,9 @@ If they are to be converted to grams, it is done as follows :
 
   Convert the following into basic units:
 
-  #text(weight: "bold", fill: rgb("#990033"))[28.7 pm]
+  #ncert-h2("28.7 pm")
 
-  #text(weight: "bold", fill: rgb("#990033"))[15.15 pm]
+  #ncert-h2("15.15 pm")
 
   25365 mg
 
@@ -1102,9 +1102,9 @@ If they are to be converted to grams, it is done as follows :
 
   (i) 	1 g Au (s)  	(ii) 	1 g Na (s)
 
-  #text(weight: "bold", fill: rgb("#990033"))[1 g Li (s)]
+  1 g Li (s)
 
-  #text(weight: "bold", fill: rgb("#990033"))[1 g of Cl2(g)]
+  1 g of Cl2(g)
 
   Calculate the molarity of a solution of ethanol in water, in which the mole fraction of ethanol is 0.040 (assume the density of water to be one).
 
@@ -1126,7 +1126,7 @@ If they are to be converted to grams, it is done as follows :
 
   38Ar 	 	 	37.96272 g mol–1 	 	0.063%
 
-  #ncert-h2("40Ar 	 	 	39.9624 g mol–1 	 	99.600%")
+  40Ar 	 	 	39.9624 g mol–1 	 	99.600%
 
   Calculate the number of atoms in each of the following (i) 52 moles of Ar (ii) 52 u of He (iii) 52 g of He.
 
@@ -1134,11 +1134,11 @@ If they are to be converted to grams, it is done as follows :
 
   Calcium carbonate reacts with aqueous HCl to give CaCl2 and CO2 according to the reaction, CaCO3 (s) + 2 HCl (aq) → CaCl2 (aq) + CO2(g) + H2O(l)
 
-  #ncert-h2("What mass of CaCO3 is required to react completely with 25 mL of 0.75 M HCl?")
+  What mass of CaCO3 is required to react completely with 25 mL of 0.75 M HCl?
 
   Chlorine is prepared in the laboratory by treating manganese dioxide (MnO2) with aqueous hydrochloric acid according to the reaction
 
-  #ncert-h2("4 HCl (aq) +  MnO2(s) → 2H2O (l) + MnCl2(aq) + Cl2 (g)")
+  4 HCl (aq) +  MnO2(s) → 2H2O (l) + MnCl2(aq) + Cl2 (g)
 
   How many grams of HCl react with 5.0 g of manganese dioxide?
 

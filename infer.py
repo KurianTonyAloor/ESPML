@@ -78,30 +78,30 @@ def extract_docx_features(docx_path: str) -> Tuple[List[Dict[str, Any]], pd.Data
         p_font_size = max(p_font_sizes) if p_font_sizes else doc_median_font
         font_ratio = p_font_size / doc_median_font
 
+        word_count = len(text.split())
+        is_upper = int(text.isupper())
+        digit_start = int(bool(re.match(r"^\d+\.\d+", text)))
+
         node_data = {
             "index": i,
             "text": text,
+            "font_size": p_font_size,
             "font_ratio": font_ratio,
             "is_bold": is_bold,
             "is_italic": is_italic,
             "is_colored": is_colored,
-            "x0": x0,
+            "x0": x0 / 595.0,
+            "word_count": word_count,
             "inside_drawing_box": 1 if "Activity" in text or (p.style and "Box" in p.style.name) else 0,
-            "length": len(text),
-            "starts_with_digit": 1 if re.match(r"^\d+", text) else 0,
-            "has_keyword": 1 if re.match(r"^(Activity|Fig|Example|Q\d+|Table)", text, re.I) else 0
+            "is_upper": is_upper,
+            "digit_start": digit_start,
+            "length": len(text)
         }
         
         docx_nodes.append(node_data)
         feature_rows.append(node_data)
 
     df = pd.DataFrame(feature_rows)
-
-    # Compute sequential context features
-    df["prev_font_ratio"] = df["font_ratio"].shift(1, fill_value=1.0)
-    df["next_font_ratio"] = df["font_ratio"].shift(-1, fill_value=1.0)
-    df["delta_font_prev"] = df["font_ratio"] - df["prev_font_ratio"]
-
     return docx_nodes, df
 
 
@@ -109,18 +109,27 @@ def extract_docx_features(docx_path: str) -> Tuple[List[Dict[str, Any]], pd.Data
 # 2. INFERENCE & TAG PREDICTION
 # ==========================================
 
-def predict_ncert_tags(model_package_path: str, df: pd.DataFrame) -> List[str]:
-    """Loads trained artifacts and predicts semantic tags for all nodes."""
-    artifacts = joblib.load(model_package_path)
-    model = artifacts["model"]
-    encoder = artifacts["encoder"]
-    feature_cols = artifacts["features"]
+def predict_ncert_tags(model_path: str, features_df: pd.DataFrame) -> list:
+    print(f"[2/4] Predicting NCERT tags for {len(features_df)} paragraphs...")
+    model_data = joblib.load(model_path)
+    model = model_data["model"] if isinstance(model_data, dict) else model_data
+    scaler = model_data.get("scaler") if isinstance(model_data, dict) else None
+    encoder = model_data.get("encoder") if isinstance(model_data, dict) else None
+    
+    feature_cols = ['font_size', 'is_bold', 'is_italic', 'is_colored', 'x0', 'word_count', 'inside_drawing_box', 'is_upper', 'digit_start']
+    if isinstance(features_df, pd.DataFrame):
+        X_mat = features_df[feature_cols].values
+    else:
+        X_mat = features_df
 
-    X = df[feature_cols]
-    y_encoded = model.predict(X)
-    predicted_labels = encoder.inverse_transform(y_encoded)
-
-    return predicted_labels.tolist()
+    if scaler is not None:
+        X_mat = scaler.transform(X_mat)
+        
+    y_encoded = model.predict(X_mat)
+    
+    if encoder is not None:
+        return encoder.inverse_transform(y_encoded).tolist()
+    return y_encoded.tolist()
 
 
 def generate_typst_code(docx_nodes: List[Dict[str, Any]], tags: List[str], output_typ_path: str, pdf_path: str = "kech101.pdf"):
@@ -498,7 +507,9 @@ def run_inference(input_docx: str, model_path: str, output_typ: str):
 if __name__ == "__main__":
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    INPUT_DOCX = os.path.join(BASE_DIR, "extracted_chapter_1.docx")
+    INPUT_DOCX = os.path.join(BASE_DIR, "Training_DOc", "docx", "kech101.docx")
+    if not os.path.exists(INPUT_DOCX):
+        INPUT_DOCX = os.path.join(BASE_DIR, "extracted_chapter_1.docx")
     MODEL_PATH = os.path.join(BASE_DIR, "ncert_classifier.joblib")
     OUTPUT_TYP = os.path.join(BASE_DIR, "reconstructed_chapter_1.typ")
 
