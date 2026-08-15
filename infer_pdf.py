@@ -18,6 +18,53 @@ def escape_typst(text: str) -> str:
         text = text.replace(old, new)
     return text
 
+def extract_all_spatial_images(pdf_path: str, img_dir: str = "images"):
+    """
+    Extracts ALL images (diagrams, scientist portraits, QR codes, flowcharts)
+    and captures their exact (x0, y0, x1, y1, page) spatial coordinates.
+    """
+    os.makedirs(img_dir, exist_ok=True)
+    doc = fitz.open(pdf_path)
+    spatial_images = []
+
+    print(f"[1.5/4] Harvesting spatial image bounding boxes from {os.path.basename(pdf_path)}...")
+
+    for page_num in range(len(doc)):
+        page = doc[page_num]
+        p_width = page.rect.width
+        img_info = page.get_image_info()
+
+        for idx, info in enumerate(img_info):
+            bbox = [round(v, 1) for v in info["bbox"]]
+            x0, y0, x1, y1 = bbox
+            w = x1 - x0
+            h = y1 - y0
+
+            # Filter out tiny icon artifacts (< 25pt) or full-page background graphics (> 500pt)
+            if w > 25 and h > 25 and w < 500 and h < 600:
+                clip_rect = fitz.Rect(max(0, x0 - 2), max(0, y0 - 2), min(p_width, x1 + 2), y1 + 2)
+                pix = page.get_pixmap(clip=clip_rect, dpi=300)
+                
+                img_filename = f"spatial_img_p{page_num+1}_{idx}.png"
+                img_path = os.path.join(img_dir, img_filename)
+                pix.save(img_path)
+
+                spatial_images.append({
+                    "id": f"img_p{page_num+1}_{idx}",
+                    "page": page_num + 1,
+                    "bbox": bbox,
+                    "y0": y0,
+                    "width_pt": round(w, 1),
+                    "height_pt": round(h, 1),
+                    "width_ratio": round(w / p_width, 2),
+                    "is_right_side": x0 > (p_width / 2),
+                    "src": f"images/{img_filename}"
+                })
+
+    doc.close()
+    print(f"Extracted {len(spatial_images)} spatial images across document.")
+    return spatial_images
+
 def extract_features_directly_from_pdf(pdf_path: str):
     """
     Extracts text nodes and 9D feature vectors directly from any input PDF.
@@ -62,6 +109,7 @@ def extract_features_directly_from_pdf(pdf_path: str):
                     "page": page_num + 1,
                     "text": b_text,
                     "bbox": [round(v, 1) for v in b["bbox"]],
+                    "y0": round(b_rect.y0, 1),
                     "font_size": round(avg_font_size, 1),
                     "is_bold": is_bold,
                     "is_italic": is_italic,
@@ -89,40 +137,10 @@ def extract_features_directly_from_pdf(pdf_path: str):
     df = pd.DataFrame(features_list, columns=['font_size', 'is_bold', 'is_italic', 'is_colored', 'x0', 'word_count', 'inside_drawing_box', 'is_upper', 'digit_start'])
     return nodes, df
 
-def extract_pdf_figures_and_tables(pdf_path: str, img_dir: str = "images"):
-    os.makedirs(img_dir, exist_ok=True)
-    doc = fitz.open(pdf_path)
-    extracted_figures = {}
-
-    for page_num in range(len(doc)):
-        page = doc[page_num]
-        blocks = page.get_text("dict")["blocks"]
-        for b in blocks:
-            if b.get("type") == 0:
-                b_text = "".join(span["text"] for line in b["lines"] for span in line["spans"]).strip()
-                fig_match = re.search(r"Fig\.\s*(\d+\.\d+)", b_text, re.I)
-                if fig_match:
-                    fig_key = f"Fig. {fig_match.group(1)}"
-                    b_rect = fitz.Rect(b["bbox"])
-                    clip_rect = fitz.Rect(max(40.0, b_rect.x0 - 20), max(40.0, b_rect.y0 - 180), min(550.0, b_rect.x1 + 30), b_rect.y0 - 2) & page.rect
-                    
-                    pix = page.get_pixmap(clip=clip_rect, dpi=300)
-                    img_filename = f"{fig_key.lower().replace('.', '_').replace(' ', '_')}.png"
-                    img_path = os.path.join(img_dir, img_filename)
-                    pix.save(img_path)
-
-                    extracted_figures[fig_key] = {
-                        "src": f"images/{img_filename}",
-                        "caption": b_text
-                    }
-
-    doc.close()
-    return extracted_figures
-
 def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     nodes, df = extract_features_directly_from_pdf(pdf_path)
 
-    # 100% DYNAMIC METADATA HARVESTING (Zero Hardcoding)
+    # 100% Dynamic Metadata Extraction
     chapter_num = "1"
     chapter_title = "TEXTBOOK CHAPTER"
     quote_text = ""
@@ -134,7 +152,6 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
         if ch_m:
             chapter_num = ch_m.group(1)
 
-        # Select true chapter title (skipping literal 'Chapter X' or 'UNIT X')
         if len(t) > 3 and chapter_title == "TEXTBOOK CHAPTER":
             if not re.match(r"^(?:Chapter|UNIT)\s*\d+$", t, re.I) and "REPRINT" not in t.upper():
                 if node["font_size"] >= 14.0 or (t.isupper() and len(t) > 4):
@@ -147,16 +164,14 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
                 if q_m.group(2):
                     quote_author = q_m.group(2).strip()
 
-    print(f"[Dynamic Metadata Extracted] Chapter: '{chapter_num}', Title: '{chapter_title}', Author: '{quote_author}'")
-
     # Predict semantic tags using Model 1
     print(f"[2/4] Predicting semantic layout tags for {len(nodes)} text blocks using Model 1...")
     model_data = joblib.load(model_path)
     model = model_data["model"] if isinstance(model_data, dict) else model_data
     predicted_tags = model.predict(df.values)
 
-    # Extract figures
-    extracted_figures = extract_pdf_figures_and_tables(pdf_path)
+    # Extract ALL spatial images with bounding boxes
+    spatial_images = extract_all_spatial_images(pdf_path)
 
     # Dynamically select subject-specific master template
     base_file = os.path.basename(pdf_path).lower()
@@ -191,35 +206,61 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     if template_name != "kemh_template.typ":
         typst_lines.append('#columns(2, gutter: 15pt)[\n')
 
-    rendered_figs = set()
-
+    # Construct unified spatial sequence (interleaving text and spatial images by page & y0)
+    all_elements = []
     for node, tag in zip(nodes, predicted_tags):
-        raw_text = node["text"]
-        safe_text = escape_typst(raw_text)
+        all_elements.append({
+            "elem_type": "TEXT",
+            "page": node["page"],
+            "y0": node["y0"],
+            "data": node,
+            "tag": tag
+        })
 
-        # 100% Dynamic Header Deduplication
-        if chapter_title.lower() in raw_text.lower() or (quote_author and quote_author.lower() in raw_text.lower()) or raw_text.startswith("vMathematics"):
-            continue
+    for img in spatial_images:
+        all_elements.append({
+            "elem_type": "IMAGE",
+            "page": img["page"],
+            "y0": img["y0"],
+            "data": img
+        })
 
-        fig_match = re.search(r"Fig\.\s*(\d+\.\d+)", raw_text, re.I)
-        fig_key = f"Fig. {fig_match.group(1)}" if fig_match else None
+    # Sort strictly by (page, y0)
+    all_elements.sort(key=lambda el: (el["page"], el["y0"]))
 
-        if tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+", raw_text):
-            typst_lines.append(f'  #ncert-h1("{safe_text}")\n\n')
-        elif tag == "SECTION_HEADING_2" or re.match(r"^\d+\.\d+\.\d+\s+", raw_text):
-            typst_lines.append(f'  #ncert-h2("{safe_text}")\n\n')
-        elif re.match(r"^(Definition|Theorem|Note)\s*\d*", raw_text, re.I):
-            typst_lines.append(f'  #ncert-green-box(title: "", [{safe_text}])\n\n')
-        elif tag == "EXERCISE_OR_EXAMPLE" or re.match(r"^(Example|EXERCISES)", raw_text, re.I):
-            typst_lines.append(f'  #ncert-problem-box(title: "Example", [{safe_text}])\n\n')
-        elif fig_match or tag == "FIGURE_CAPTION":
-            typst_lines.append(f'  #align(center)[#text(style: "italic", size: 8.5pt)[{safe_text}]]\n\n')
-            if fig_key and fig_key in extracted_figures and fig_key not in rendered_figs:
-                rendered_figs.add(fig_key)
-                img_src = extracted_figures[fig_key]["src"]
-                typst_lines.append(f'  #ncert-figure("./{img_src}", caption: "", width: 90%)\n\n')
-        else:
-            typst_lines.append(f'  {safe_text}\n\n')
+    for item in all_elements:
+        if item["elem_type"] == "IMAGE":
+            img = item["data"]
+            img_src = img["src"]
+            w_pct = int(img["width_ratio"] * 100)
+            
+            if img["is_right_side"]:
+                # Wrap portrait or right-aligned figure
+                typst_lines.append(f'  #align(right)[#ncert-figure("./{img_src}", caption: "", width: {w_pct}%)]\n\n')
+            else:
+                typst_lines.append(f'  #align(center)[#ncert-figure("./{img_src}", caption: "", width: {min(95, max(40, w_pct))}%)]\n\n')
+
+        else:  # TEXT node
+            node = item["data"]
+            tag = item["tag"]
+            raw_text = node["text"]
+            safe_text = escape_typst(raw_text)
+
+            if chapter_title.lower() in raw_text.lower() or (quote_author and quote_author.lower() in raw_text.lower()) or raw_text.startswith("vMathematics"):
+                continue
+
+            if tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+", raw_text):
+                typst_lines.append(f'  #ncert-h1("{safe_text}")\n\n')
+            elif tag == "SECTION_HEADING_2" or re.match(r"^\d+\.\d+\.\d+\s+", raw_text):
+                typst_lines.append(f'  #ncert-h2("{safe_text}")\n\n')
+            elif re.match(r"^(Definition|Theorem|Note)\s*\d*", raw_text, re.I):
+                typst_lines.append(f'  #ncert-green-box(title: "", [{safe_text}])\n\n')
+            elif tag == "EXERCISE_OR_EXAMPLE" or re.match(r"^(Example|EXERCISES)", raw_text, re.I):
+                typst_lines.append(f'  #ncert-problem-box(title: "Example", [{safe_text}])\n\n')
+            elif tag == "FIGURE_CAPTION":
+                typst_lines.append(f'  #align(center)[#text(style: "italic", size: 8.5pt)[{safe_text}]]\n\n')
+            else:
+                typst_lines.append(f'  {safe_text}\n\n')
 
     if template_name != "kemh_template.typ":
         typst_lines.append(']\n')
