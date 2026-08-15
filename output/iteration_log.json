@@ -1,0 +1,38 @@
+[
+  {
+    "iteration": 1,
+    "timestamp": "20260815_130322",
+    "document": "kemh102.pdf",
+    "subject": "KEMH",
+    "template_used": "kemh_template.typ",
+    "nodes_count": 347,
+    "extracted_assets_count": 24,
+    "typ_path": "output\\typ_files\\reconstructed_kemh102_v1_20260815_130322.typ",
+    "pdf_path": "output\\pdf_files\\reconstructed_kemh102_v1_20260815_130322.pdf",
+    "compilation_status": "FAILED: error: file not found (searched at \\\\?\\C:\\Users\\Kurian Tony Aloor\\OneDrive\\Desktop\\ESPLintern\\ML Based\\output\\typ_files\\templates\\kemh_template.typ)\n  \u00e2\u201d\u0152\u00e2\u201d\u20ac \\\\?\\C:\\Users\\Kurian Tony Aloor\\OneDrive\\Desktop\\ESPLintern\\ML Based\\output\\typ_files\\reconstructed_kemh102_v1_20260815_130322.typ:2:8\n  \u00e2\u201d\u201a\n2 \u00e2\u201d\u201a #import \"./templates/kemh_template.typ\": *\n  \u00e2\u201d\u201a         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n"
+  },
+  {
+    "iteration": 2,
+    "timestamp": "20260815_130345",
+    "document": "kemh102.pdf",
+    "subject": "KEMH",
+    "template_used": "kemh_template.typ",
+    "nodes_count": 347,
+    "extracted_assets_count": 24,
+    "typ_path": "output\\typ_files\\reconstructed_kemh102_v2_20260815_130345.typ",
+    "pdf_path": "output\\pdf_files\\reconstructed_kemh102_v2_20260815_130345.pdf",
+    "compilation_status": "FAILED: error: path `\"../../images/math_real_img_p1_1.png\"` would escape the project root\n    \u00e2\u201d\u0152\u00e2\u201d\u20ac \\\\?\\C:\\Users\\Kurian Tony Aloor\\OneDrive\\Desktop\\ESPLintern\\ML Based\\templates\\kemh_template.typ:167:11\n    \u00e2\u201d\u201a\n167 \u00e2\u201d\u201a     #image(img-path, width: 100%)\n    \u00e2\u201d\u201a            ^^^^^^^^\n    \u00e2\u201d\u201a\n    = hint: cannot access files outside of the project sandbox\n    = hint: you can adjust the project root with the `--root` argument\n\n  while calling `ncert-figure` at \\\\?\\C:\\Users\\Kurian Tony Aloor\\OneDrive\\Desktop\\ESPLintern\\ML Based\\output\\typ_files\\reconstructed_kemh102_v2_20260815_130345.typ:15:18\n    ncert-figure(\"../../images/math_real_img_p1_1.png\", caption: \"\", width: 30%)\n\n"
+  },
+  {
+    "iteration": 3,
+    "timestamp": "20260815_130406",
+    "document": "kemh102.pdf",
+    "subject": "KEMH",
+    "template_used": "kemh_template.typ",
+    "nodes_count": 347,
+    "extracted_assets_count": 24,
+    "typ_path": "output\\typ_files\\reconstructed_kemh102_v3_20260815_130406.typ",
+    "pdf_path": "output\\pdf_files\\reconstructed_kemh102_v3_20260815_130406.pdf",
+    "compilation_status": "SUCCESS"
+  }
+]

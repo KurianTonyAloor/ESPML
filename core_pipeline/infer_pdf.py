@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import datetime
 import numpy as np
 import pandas as pd
 import pymupdf as fitz
@@ -78,9 +79,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 h = r.y1 - r.y0
                 area_ratio = (w * h) / p_area
                 
-                # Isolated vector graph shapes only (w <= 260pt, h <= 260pt, AreaRatio <= 18%)
                 if w > 20 and h > 20 and w <= 260 and h <= 260 and area_ratio <= 0.18 and r.x0 >= 20 and r.y0 >= 40:
-                    # Check if not duplicate of existing cluster
                     is_dup = False
                     for existing in graph_clusters:
                         if abs(r.x0 - existing.x0) < 15 and abs(r.y0 - existing.y0) < 15:
@@ -213,8 +212,33 @@ def extract_features_directly_from_pdf(pdf_path: str):
     df = pd.DataFrame(features_list, columns=['font_size', 'is_bold', 'is_italic', 'is_colored', 'x0', 'word_count', 'inside_drawing_box', 'is_upper', 'digit_start'])
     return nodes, df
 
-def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
+def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
     nodes, df = extract_features_directly_from_pdf(pdf_path)
+
+    # Setup Versioned Output Directories
+    typ_dir = os.path.join(output_dir, "typ_files")
+    pdf_dir = os.path.join(output_dir, "pdf_files")
+    os.makedirs(typ_dir, exist_ok=True)
+    os.makedirs(pdf_dir, exist_ok=True)
+
+    log_file = os.path.join(output_dir, "iteration_log.json")
+    iteration_log = []
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, "r", encoding="utf-8") as f:
+                iteration_log = json.load(f)
+        except Exception:
+            iteration_log = []
+
+    iter_count = len(iteration_log) + 1
+    timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    doc_stem = os.path.splitext(os.path.basename(pdf_path))[0]
+
+    versioned_typ_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.typ"
+    versioned_pdf_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.pdf"
+
+    output_typ_path = os.path.join(typ_dir, versioned_typ_filename)
+    output_pdf_path = os.path.join(pdf_dir, versioned_pdf_filename)
 
     # Detect Subject Prefix
     base_file = os.path.basename(pdf_path).lower()
@@ -261,17 +285,17 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     model = model_data["model"] if isinstance(model_data, dict) else model_data
     predicted_tags = model.predict(df.values)
 
-    # Extract subject-specific assets (filtering watermarks & harvesting vector math graphs)
+    # Extract subject-specific assets
     spatial_assets = extract_subject_specific_assets(pdf_path, subject_prefix)
 
-    print(f"[3/4] Synthesizing Typst document using [{template_name}]: {output_typ_path}")
+    print(f"[3/4] Synthesizing Typst document [Iteration v{iter_count}]: {output_typ_path}")
     
     safe_ch_title = escape_typst(chapter_title)
     safe_quote = escape_typst(f"{quote_text} – {quote_author}" if quote_author else quote_text)
 
     typst_lines = [
-        f"// Subject-Isolated PDF Reconstruction Engine [{template_name}]\n",
-        f'#import "./templates/{template_name}": *\n\n',
+        f"// Versioned Output v{iter_count} - {timestamp_str} [{template_name}]\n",
+        f'#import "/templates/{template_name}": *\n\n',
         '#show: ncert-document.with(\n',
         f'  chapter-num: "{chapter_num}",\n',
         f'  chapter-title: "{safe_ch_title}"\n',
@@ -286,7 +310,6 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     if template_name != "kemh_template.typ":
         typst_lines.append('#columns(2, gutter: 15pt)[\n')
 
-    # Construct unified spatial sequence (interleaving text and assets strictly by page & y0)
     all_elements = []
     for node, tag in zip(nodes, predicted_tags):
         all_elements.append({
@@ -305,13 +328,12 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
             "data": asset
         })
 
-    # Sort strictly by (page, y0)
     all_elements.sort(key=lambda el: (el["page"], el["y0"]))
 
     for item in all_elements:
         if item["elem_type"] == "IMAGE":
             img = item["data"]
-            img_src = f"../{img['src']}"
+            img_src = f"/{img['src']}"
             w_pct = int(img["width_ratio"] * 100) if "width_ratio" in img else 40
             
             if img.get("is_right_side"):
@@ -319,7 +341,7 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
             else:
                 typst_lines.append(f'  #align(center)[#ncert-figure("{img_src}", caption: "", width: {min(75, max(30, w_pct))}%)]\n\n')
 
-        else:  # TEXT node
+        else:
             node = item["data"]
             tag = item["tag"]
             raw_text = node["text"]
@@ -347,24 +369,45 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     with open(output_typ_path, "w", encoding="utf-8") as f:
         f.writelines(typst_lines)
 
+    # Maintain latest copies
+    latest_typ = os.path.join(typ_dir, f"reconstructed_{doc_stem}_latest.typ")
+    latest_pdf = os.path.join(pdf_dir, f"reconstructed_{doc_stem}_latest.pdf")
+    with open(latest_typ, "w", encoding="utf-8") as f:
+        f.writelines(typst_lines)
+
     # Compile PDF using Typst CLI with --root PROJECT_ROOT
-    pdf_out = output_typ_path.replace(".typ", ".pdf")
-    print(f"[4/4] Compiling output PDF: {pdf_out}")
+    print(f"[4/4] Compiling versioned PDF [v{iter_count}]: {output_pdf_path}")
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    res = subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, output_typ_path, pdf_out], capture_output=True, text=True)
-    if res.returncode == 0:
-        print(f"PDF successfully compiled: {pdf_out}")
-    else:
-        print(f"Typst compilation notice: {res.stderr}")
-    if res.returncode == 0:
-        print(f"PDF successfully compiled: {pdf_out}")
-    else:
-        print(f"Typst compilation notice: {res.stderr}")
+    res = subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, output_typ_path, output_pdf_path], capture_output=True, text=True)
+    subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, latest_typ, latest_pdf], capture_output=True, text=True)
+
+    status = "SUCCESS" if res.returncode == 0 else f"FAILED: {res.stderr}"
+    print(f"PDF Compilation Status: {status}")
+
+    # Record Iteration Audit Log
+    log_entry = {
+        "iteration": iter_count,
+        "timestamp": timestamp_str,
+        "document": os.path.basename(pdf_path),
+        "subject": subject_prefix.upper(),
+        "template_used": template_name,
+        "nodes_count": len(nodes),
+        "extracted_assets_count": len(spatial_assets),
+        "typ_path": os.path.relpath(output_typ_path, PROJECT_ROOT),
+        "pdf_path": os.path.relpath(output_pdf_path, PROJECT_ROOT),
+        "compilation_status": status
+    }
+    iteration_log.append(log_entry)
+
+    with open(log_file, "w", encoding="utf-8") as f:
+        json.dump(iteration_log, f, indent=2)
+
+    print(f"Iteration Audit Log updated: {log_file}")
 
 if __name__ == "__main__":
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     input_pdf = os.path.join(PROJECT_ROOT, "testing_doc", "kemh102.pdf")
     model_path = os.path.join(PROJECT_ROOT, "models", "ncert_classifier.joblib")
-    output_typ = os.path.join(PROJECT_ROOT, "reconstructed_kemh102.typ")
+    output_dir = os.path.join(PROJECT_ROOT, "output")
     
-    run_pdf_inference(input_pdf, model_path, output_typ)
+    run_pdf_inference(input_pdf, model_path, output_dir)
