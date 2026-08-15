@@ -11,10 +11,7 @@
   title: "RELATIONS AND FUNCTIONS"
 )
 
-#columns(2, gutter: 15pt)[
   #ncert-h2("vMathematics is the indispensable instrument of")
-
-  #ncert-h2("all physical research. – BERTHELOT v")
 
   #ncert-h1("2.1  Introduction")
 
@@ -34,15 +31,11 @@
 
   #ncert-h1("Chapter 2")
 
-  #ncert-h1("RELATIONS AND FUNCTIONS")
-
   #ncert-h2("G . W.  Leibnitz")
 
   #ncert-h2("(1646–1716)")
 
   Reprint 2026-27
-
-  RELATIONS AND FUNCTIONS          25
 
   brackets and grouped together in a particular order, i.e., (p,q), p ∈ P and  q ∈ Q . Thisleads to the following definition:
 
@@ -122,8 +115,6 @@
 
   Reprint 2026-27
 
-  RELATIONS AND FUNCTIONS          27
-
   #ncert-h2("Example 4 If P = {1, 2}, form the set P × P × P.")
 
   #ncert-h2("Solution We have,  P × P × P =  {(1,1,1), (1,1,2), (1,2,1), (1,2,2), (2,1,1), (2,1,2), (2,2,1),")
@@ -183,8 +174,6 @@
   #ncert-h2("Fig 2.4")
 
   Reprint 2026-27
-
-  RELATIONS AND FUNCTIONS          29
 
   The corresponding arrow diagram isshown in Fig 2.5.
 
@@ -252,8 +241,6 @@
 
   Reprint 2026-27
 
-  RELATIONS AND FUNCTIONS          31
-
   The function f from A to B is denoted by f: A à B.Looking at the previous examples, we can easily see that the relation in Example 7 isnot a function because the element 6 has no image.
 
   #ncert-green-box(title: "Definition / Note", [Again, the relation in Example 8 is not a function because the elements in thedomain are connected to more than one images. Similarly, the relation in  Example 9 isalso not a function. (Why?) In the examples given below, we will see many morerelations some of which are functions and others are not.])
@@ -299,8 +286,6 @@
   #ncert-green-box(title: "Definition / Note", [Fig 2.8(ii)Constant function Define the function f: R → R by y = f (x) = c, x ∈ R wherec is a constant and each x ∈ R. Here domain of f is R and its range is {c}.])
 
   Reprint 2026-27
-
-  RELATIONS AND FUNCTIONS          33
 
   The graph is a line parallel to x-axis. For example, if f(x)=3 for each x∈R, then itsgraph will be a line as shown in the Fig 2.9.
 
@@ -364,8 +349,6 @@
 
   Reprint 2026-27
 
-  RELATIONS AND FUNCTIONS          35
-
   The domain is all real numbers except 0 and its range is also all real numbersexcept 0. The graph of f is given in Fig 2.12.
 
   #ncert-h2("Fig 2.13")
@@ -421,8 +404,6 @@
   #ncert-h2("Fig 2.15")
 
   Reprint 2026-27
-
-  RELATIONS AND FUNCTIONS          37
 
   (ii)Subtraction of a real function from another Let f : X → R and g: X → R beany two real functions, where X ⊂R. Then, we define (f – g) : X→R by(f–g) (x) = f(x) –g(x), for all x ∈ X.
 
@@ -515,8 +496,6 @@
   #ncert-green-box(title: "Definition / Note", [Remark The function f  defined by f(x) = mx + c ,x ∈ R, is called linear function, where m and c areconstants. Above function is an example of a linearfunction.Fig 2.16])
 
   Reprint 2026-27
-
-  RELATIONS AND FUNCTIONS          39
 
   #ncert-problem-box(title: "Example", [Example 19 Let R be a relation from Q to Q defined by R = {(a,b): a,b ∈ Q anda – b ∈ Z}. Show that])
 
@@ -648,13 +627,9 @@
 
   Reprint 2026-27
 
-  RELATIONS AND FUNCTIONS          41
-
   11.Let f be the subset of Z × Z defined by f = {(ab, a + b) : a, b ∈ Z}. Is f afunction from Z to Z? Justify your answer.12.Let A = {9,10,11,12,13} and let f : A→N be defined by f (n) = the highest primefactor of n. Find the range of f.
 
   #ncert-h2("Summary")
-
-  #ncert-green-box(title: "Definition / Note", [In this Chapter, we studied about relations and functions.The main features ofthis Chapter are as follows:® Ordered pair  A pair of elements grouped together in a particular order.® Cartesian product A × B of two sets A and B is given by])
 
   #ncert-h2("A × B =  {(a, b): a ∈ A, b ∈ B}")
 
@@ -706,4 +681,3 @@
 
   Reprint 2026-27
 
-]

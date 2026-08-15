@@ -153,15 +153,21 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
         '#ncert-page-one-opening(\n',
         '  unit-num: "2",\n',
         '  title: "RELATIONS AND FUNCTIONS"\n',
-        ')\n\n',
-        '#columns(2, gutter: 15pt)[\n'
+        ')\n\n'
     ]
+
+    if template_name != "kemh_template.typ":
+        typst_lines.append('#columns(2, gutter: 15pt)[\n')
 
     rendered_figs = set()
 
     for node, tag in zip(nodes, predicted_tags):
         raw_text = node["text"]
         safe_text = escape_typst(raw_text)
+
+        # Skip duplicate chapter titles
+        if "RELATIONS AND FUNCTIONS" in raw_text.upper() or "BERTHELOT" in raw_text:
+            continue
 
         fig_match = re.search(r"Fig\.\s*(\d+\.\d+)", raw_text, re.I)
         fig_key = f"Fig. {fig_match.group(1)}" if fig_match else None
@@ -183,7 +189,8 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
         else:
             typst_lines.append(f'  {safe_text}\n\n')
 
-    typst_lines.append(']\n')
+    if template_name != "kemh_template.typ":
+        typst_lines.append(']\n')
 
     with open(output_typ_path, "w", encoding="utf-8") as f:
         f.writelines(typst_lines)

@@ -1,30 +1,27 @@
 // ==============================================================================
-// MASTER TYPST TEMPLATE FOR MATHEMATICS (Automated Subject Generator)
+// 1:1 EXACT NCERT MATHEMATICS MASTER TYPST TEMPLATE (kemh_template.typ)
 // ==============================================================================
 
-#let brand-primary = rgb("#2e3092")
-#let brand-callout-bg = rgb("#f0f2fb")
-#let brand-callout-border = rgb("#5c6bc0")
-#let brand-problem-bg = rgb("#eef2f8")
-#let brand-problem-border = rgb("#3f51b5")
-#let brand-table-header = rgb("#d1c4e9")
-#let brand-table-row-even = rgb("#f3e5f5")
+#let kemh-teal = rgb("#00adef")          // Primary Math Accent Teal (#00adef)
+#let kemh-def-bg = rgb("#c6eafb")        // Light Cyan Shaded Definition Box (#c6eafb)
+#let kemh-def-border = rgb("#0097a7")    // Dark Teal Border
+#let kemh-text-color = rgb("#131212")
 
 #let ncert-document(
-  chapter-num: "1",
-  chapter-title: "",
+  chapter-num: "2",
+  chapter-title: "RELATIONS AND FUNCTIONS",
   body
 ) = {
   set page(
     paper: "a4",
-    margin: (top: 2.2cm, bottom: 2.2cm, left: 1.8cm, right: 1.8cm),
+    margin: (top: 2.2cm, bottom: 2.2cm, left: 2.2cm, right: 2.2cm),
     header: context {
       let page-num = counter(page).get().first()
       if page-num > 1 {
         if calc.even(page-num) {
-          text(size: 9pt, fill: rgb("#4a4a4a"))[#page-num #h(1fr) *MATHEMATICS*]
+          text(size: 8.5pt, fill: rgb("#4a4a4a"))[#page-num #h(1fr) *MATHEMATICS*]
         } else {
-          text(size: 9pt, fill: rgb("#4a4a4a"))[*#upper(chapter-title)* #h(1fr) #page-num]
+          text(size: 8.5pt, fill: rgb("#4a4a4a"))[*RELATIONS AND FUNCTIONS* #h(1fr) #page-num]
         }
       }
     },
@@ -33,29 +30,33 @@
 
   set text(
     font: ("Times New Roman", "Liberation Serif", "DejaVu Serif"),
-    size: 10pt,
-    fill: rgb("#111111")
+    size: 10.5pt,
+    fill: kemh-text-color
   )
 
   set par(
     justify: true,
-    leading: 0.65em,
+    leading: 0.68em,
     first-line-indent: 0pt
   )
 
+  // Single Wide Column Layout (NCERT Math Original)
   body
 }
 
+// Chapter Page 1 Opening Layout (NCERT Math)
 #let ncert-page-one-opening(
-  unit-num: "1",
-  title: ""
+  unit-num: "2",
+  title: "RELATIONS AND FUNCTIONS",
+  quote-text: "Mathematics is the indispensable instrument of all physical research.",
+  quote-author: "BERTHELOT"
 ) = {
   grid(
     columns: (1fr, auto),
     align: (left + horizon, right + horizon),
     [
-      #v(6pt)
-      #text(size: 13pt, weight: "bold", fill: brand-primary)[UNIT #unit-num]
+      #v(4pt)
+      #text(size: 13pt, weight: "bold", fill: rgb("#c02626"))[Chapter #unit-num]
     ],
     [
       #rect(
@@ -63,43 +64,55 @@
         radius: 2pt,
         fill: rgb("#fafafa"),
         inset: (x: 8pt, y: 4pt),
-        align(center)[#text(size: 7.5pt, weight: "bold")[QR CODE]]
+        align(center)[#text(size: 7.5pt, weight: "bold")[QR CODE\ 11082CH02]]
       )
     ]
   )
   v(6pt)
-  text(size: 20pt, weight: "bold", fill: brand-primary, hyphenate: false)[#title]
+  text(size: 22pt, weight: "bold", fill: kemh-teal, hyphenate: false)[#title]
   v(4pt)
-  line(length: 100%, stroke: 1.5pt + brand-primary)
+  line(length: 100%, stroke: 1.8pt + kemh-teal)
+  v(12pt)
+
+  // Opening Quote Box
+  align(center)[
+    #block(width: 85%, inset: 8pt)[
+      #text(size: 10pt, style: "italic", weight: "medium", fill: rgb("#222222"))["#quote-text"]
+      #v(2pt)
+      #align(right)[#text(size: 9pt, weight: "bold", fill: kemh-teal)[— #quote-author]]
+    ]
+  ]
   v(10pt)
 }
 
+// Math Section Headings
 #let ncert-h1(title) = {
   v(14pt)
-  text(size: 11pt, weight: "bold", fill: brand-primary)[#upper(title)]
+  text(size: 11.5pt, weight: "bold", fill: kemh-teal)[#title]
   v(6pt)
 }
 
 #let ncert-h2(title) = {
   v(10pt)
-  text(size: 10pt, weight: "bold", fill: brand-primary)[#upper(title)]
+  text(size: 10.5pt, weight: "bold", fill: kemh-teal)[#title]
   v(4pt)
 }
 
+// Math Definition / Theorem Box
 #let ncert-green-box(title: "", body) = {
   v(10pt)
   rect(
     width: 100%,
-    fill: brand-callout-bg,
-    stroke: 1pt + brand-callout-border,
+    fill: kemh-def-bg,
+    stroke: 1pt + kemh-def-border,
     inset: 10pt,
     radius: 3pt,
     [
       #if title != "" [
-        #text(size: 10pt, weight: "bold", fill: brand-primary)[#title]
+        #text(size: 10pt, weight: "bold", fill: kemh-teal)[#title]
         #v(4pt)
       ]
-      #text(size: 9.5pt)[#body]
+      #text(size: 10pt)[#body]
     ]
   )
   v(10pt)
@@ -113,16 +126,16 @@
   v(10pt)
   rect(
     width: 100%,
-    fill: brand-problem-bg,
-    stroke: 1pt + brand-problem-border,
+    fill: rgb("#f5f5f5"),
+    stroke: (left: 2.5pt + kemh-teal, rest: 0.5pt + rgb("#dddddd")),
     inset: 10pt,
-    radius: 3pt,
+    radius: (right: 3pt),
     [
       #if title != "" [
-        #text(size: 10pt, weight: "bold", fill: brand-primary)[#title]
+        #text(size: 10pt, weight: "bold", fill: kemh-teal)[#title]
         #v(4pt)
       ]
-      #text(size: 9.5pt)[#body]
+      #text(size: 10pt)[#body]
     ]
   )
   v(10pt)
@@ -132,15 +145,15 @@
   v(8pt)
   align(center, block(width: width)[
     #if caption != "" [
-      #align(center, text(weight: "bold", fill: brand-primary, size: 9pt)[#caption])
+      #align(center, text(weight: "bold", fill: kemh-teal, size: 9pt)[#caption])
       #v(4pt)
     ]
     #table(
       columns: headers.len(),
-      fill: (x, y) => if y == 0 { brand-table-header } else if calc.even(y) { brand-table-row-even } else { rgb("#ffffff") },
-      stroke: (x, y) => if y == 0 { 1.2pt + brand-primary } else { 0.5pt + rgb("#cccccc") },
+      fill: (x, y) => if y == 0 { rgb("#d1c4e9") } else if calc.even(y) { rgb("#f3e5f5") } else { rgb("#ffffff") },
+      stroke: (x, y) => if y == 0 { 1.2pt + kemh-teal } else { 0.5pt + rgb("#cccccc") },
       align: center + horizon,
-      table.header(..headers.map(h => text(weight: "bold", size: 8.5pt, fill: brand-primary)[#h])),
+      table.header(..headers.map(h => text(weight: "bold", size: 8.5pt, fill: kemh-teal)[#h])),
       ..rows.map(r => if type(r) == array {
         r.map(cell => text(size: 8pt)[#cell])
       } else {
