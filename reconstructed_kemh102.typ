@@ -1,5 +1,5 @@
 // Subject-Isolated PDF Reconstruction Engine [kemh_template.typ]
-#import "./kemh_template.typ": *
+#import "./templates/kemh_template.typ": *
 
 #show: ncert-document.with(
   chapter-num: "2",
@@ -12,9 +12,9 @@
   quote-text: "vMathematics is the indispensable instrument of"
 )
 
-  #align(center)[#ncert-figure("./images/math_real_img_p1_1.png", caption: "", width: 30%)]
+  #align(center)[#ncert-figure("../images/math_real_img_p1_1.png", caption: "", width: 30%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p1_0.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p1_0.png", caption: "", width: 20%)]
 
   #ncert-h1("Chapter 2")
 
@@ -22,7 +22,7 @@
 
   #ncert-h1("2.1  Introduction")
 
-  #align(right)[#ncert-figure("./images/math_real_img_p1_0.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("../images/math_real_img_p1_0.png", caption: "", width: 25%)]
 
   Much of mathematics is about finding a pattern – arecognisable link between quantities that change. In ourdaily life, we come across many patterns that characteriserelations such as brother and sister, father and son, teacherand student. In mathematics also, we come across manyrelations such as number m is less than number n, line l isparallel to line m, set A is a subset of set B. In all these, wenotice that a relation involves pairs of objects in certainorder. In this Chapter, we will learn how to link pairs ofobjects from two sets and then introduce relations betweenthe two objects in the pair. Finally, we will learn aboutspecial relations which will qualify to be functions. Theconcept of function is very important in mathematics since it captures the idea of amathematically precise correspondence between one quantity with the other.
 
@@ -156,9 +156,9 @@
 
   #ncert-h1("2.3  RelationsConsider the two sets P = {a, b, c} and Q = {Ali, Bhanu, Binoy, Chandra, Divya}.The cartesian product ofP and Q has 15 ordered pairs whichcan be listed as P × Q = {(a, Ali),(a,Bhanu), (a, Binoy), ..., (c, Divya)}.")
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p5_0.png", caption: "", width: 30%)]
+  #align(center)[#ncert-figure("../images/math_vector_graph_p5_0.png", caption: "", width: 30%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p5_1.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p5_1.png", caption: "", width: 20%)]
 
   We can now obtain a subset ofP × Q by introducing a relation Rbetween the first element x and thesecond element y of each ordered pair(x, y) as
 
@@ -186,9 +186,9 @@
 
   Reprint 2026-27
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_0.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p6_0.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_1.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p6_1.png", caption: "", width: 20%)]
 
   The corresponding arrow diagram isshown in Fig 2.5.
 
@@ -200,13 +200,13 @@
 
   #ncert-problem-box(title: "Example", [Example 8 The Fig 2.6 shows a relationbetween the sets P and Q. Write this relation (i) in set-builder form, (ii) in roster form.What is its domain and range?])
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_2.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p6_2.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_3.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p6_3.png", caption: "", width: 20%)]
 
   #ncert-h2("Solution It is obvious that the relation R is")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_4.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p6_4.png", caption: "", width: 20%)]
 
   #ncert-h2("“x is the square of y”.")
 
@@ -242,11 +242,11 @@
 
   #ncert-h2("4.The Fig2.7 shows a relationshipbetween the sets P and Q. Write thisrelation")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p7_0.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p7_0.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p7_1.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p7_1.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p7_2.png", caption: "", width: 24%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p7_2.png", caption: "", width: 24%)]
 
   (i) in set-builder form (ii) roster form.What is its domain and range?5.Let A = {1, 2, 3, 4, 6}. Let R be therelation on A defined by{(a, b): a , b ∈A, b is exactly divisible by a}.
 
@@ -308,7 +308,7 @@
 
   #ncert-h2("2.4.1  Some functions and their graphs(i)Identity function  Let R be the set of real numbers. Define the real valuedfunction f : R → R by y =  f(x) = x for each x ∈ R. Such a function is called theidentity function. Here the domain and range of f are R. The graph is a straight line asshown in Fig 2.8. It passes through the origin.")
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p9_0.png", caption: "", width: 30%)]
+  #align(center)[#ncert-figure("../images/math_vector_graph_p9_0.png", caption: "", width: 30%)]
 
   Fig 2.8(ii)Constant function Define the function f: R → R by y = f (x) = c, x ∈ R wherec is a constant and each x ∈ R. Here domain of f is R and its range is {c}.
 
@@ -342,7 +342,7 @@
 
   #ncert-h2("Domain of f = {x : x∈R}. Range of f   = {x")
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p10_0.png", caption: "", width: 30%)]
+  #align(center)[#ncert-figure("../images/math_vector_graph_p10_0.png", caption: "", width: 30%)]
 
   #ncert-h2("Fig 2.10")
 
@@ -354,9 +354,9 @@
 
   Solution We havef(0) = 0, f(1) = 1, f(–1) = –1, f(2) = 8, f(–2) = –8,  f(3) = 27; f(–3) = –27, etc.Therefore,   f = {(x,x3): x∈R}.The graph of f is given in Fig 2.11.
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p11_0.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p11_0.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p11_1.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p11_1.png", caption: "", width: 20%)]
 
   #ncert-h2("Fig 2.11")
 
@@ -386,13 +386,13 @@
 
   The domain is all real numbers except 0 and its range is also all real numbersexcept 0. The graph of f is given in Fig 2.12.
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p12_1.png", caption: "", width: 30%)]
+  #align(center)[#ncert-figure("../images/math_vector_graph_p12_1.png", caption: "", width: 30%)]
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p12_2.png", caption: "", width: 30%)]
+  #align(center)[#ncert-figure("../images/math_vector_graph_p12_2.png", caption: "", width: 30%)]
 
   #ncert-h2("Fig 2.12")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p12_0.png", caption: "", width: 24%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p12_0.png", caption: "", width: 24%)]
 
   (v)The Modulus function The functionf: R→R defined by f(x) = |x| for eachx ∈R is called modulus function. For eachnon-negative value of x,  f(x) is equal to x.But for negative values of x, the value off(x) is the negative of the value of x, i.e.,
 
@@ -528,7 +528,7 @@
 
   #ncert-h2("f: R→R by f(x) = x + 10")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p15_0.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p15_0.png", caption: "", width: 20%)]
 
   and sketch the graph of this function.
 
@@ -570,9 +570,9 @@
 
   #ncert-h2("x, x")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p16_0.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p16_0.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p16_1.png", caption: "", width: 20%)]
+  #align(right)[#ncert-figure("../images/math_vector_graph_p16_1.png", caption: "", width: 20%)]
 
   #ncert-h2(", x")
 
@@ -720,7 +720,7 @@
 
   The word FUNCTION first appears in a Latin manuscript “Methodustangentium inversa, seu de fuctionibus” written by Gottfried Wilhelm Leibnitz(1646-1716) in 1673; Leibnitz used the word in the non-analytical sense. Heconsidered a function in terms of “mathematical job” – the “employee” beingjust a curve.
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p19_0.png", caption: "", width: 30%)]
+  #align(center)[#ncert-figure("../images/math_vector_graph_p19_0.png", caption: "", width: 30%)]
 
   On July 5, 1698, Johan Bernoulli, in a letter to Leibnitz, for the first timedeliberately  assigned a specialised use of the term function in the analyticalsense. At the end of that month, Leibnitz replied showing his approval.
 

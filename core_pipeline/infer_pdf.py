@@ -271,7 +271,7 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
 
     typst_lines = [
         f"// Subject-Isolated PDF Reconstruction Engine [{template_name}]\n",
-        f'#import "./{template_name}": *\n\n',
+        f'#import "./templates/{template_name}": *\n\n',
         '#show: ncert-document.with(\n',
         f'  chapter-num: "{chapter_num}",\n',
         f'  chapter-title: "{safe_ch_title}"\n',
@@ -311,13 +311,13 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     for item in all_elements:
         if item["elem_type"] == "IMAGE":
             img = item["data"]
-            img_src = img["src"]
+            img_src = f"../{img['src']}"
             w_pct = int(img["width_ratio"] * 100) if "width_ratio" in img else 40
             
             if img.get("is_right_side"):
-                typst_lines.append(f'  #align(right)[#ncert-figure("./{img_src}", caption: "", width: {max(20, min(40, w_pct))}%)]\n\n')
+                typst_lines.append(f'  #align(right)[#ncert-figure("{img_src}", caption: "", width: {max(20, min(40, w_pct))}%)]\n\n')
             else:
-                typst_lines.append(f'  #align(center)[#ncert-figure("./{img_src}", caption: "", width: {min(75, max(30, w_pct))}%)]\n\n')
+                typst_lines.append(f'  #align(center)[#ncert-figure("{img_src}", caption: "", width: {min(75, max(30, w_pct))}%)]\n\n')
 
         else:  # TEXT node
             node = item["data"]
@@ -347,19 +347,24 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     with open(output_typ_path, "w", encoding="utf-8") as f:
         f.writelines(typst_lines)
 
-    # Compile PDF using Typst CLI
+    # Compile PDF using Typst CLI with --root PROJECT_ROOT
     pdf_out = output_typ_path.replace(".typ", ".pdf")
     print(f"[4/4] Compiling output PDF: {pdf_out}")
-    res = subprocess.run(["typst", "compile", output_typ_path, pdf_out], capture_output=True, text=True)
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    res = subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, output_typ_path, pdf_out], capture_output=True, text=True)
+    if res.returncode == 0:
+        print(f"PDF successfully compiled: {pdf_out}")
+    else:
+        print(f"Typst compilation notice: {res.stderr}")
     if res.returncode == 0:
         print(f"PDF successfully compiled: {pdf_out}")
     else:
         print(f"Typst compilation notice: {res.stderr}")
 
 if __name__ == "__main__":
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    input_pdf = os.path.join(BASE_DIR, "testing_doc", "kemh102.pdf")
-    model_path = os.path.join(BASE_DIR, "ncert_classifier.joblib")
-    output_typ = os.path.join(BASE_DIR, "reconstructed_kemh102.typ")
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    input_pdf = os.path.join(PROJECT_ROOT, "testing_doc", "kemh102.pdf")
+    model_path = os.path.join(PROJECT_ROOT, "models", "ncert_classifier.joblib")
+    output_typ = os.path.join(PROJECT_ROOT, "reconstructed_kemh102.typ")
     
     run_pdf_inference(input_pdf, model_path, output_typ)
