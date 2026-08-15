@@ -4,54 +4,60 @@ An end-to-end Machine Learning and Typst layout reconstruction system that conve
 
 ---
 
-## 🏛️ Architecture & Workflow
+## 📁 Repository Structure
 
 ```
-[Source Unformatted DOCX]  ──>  [Random Forest ML Classifier]  ──>  Predicts Semantic Tags
-                                             │
-                                             ▼ Merged With
-[Original Reference PDF]   ──>  [Spatial Asset Harvesters]    ──>  Injects Figures, Tables & Callouts
-                                             │
-                                             ▼
-                                  [Typst Code (.typ)]
-                                             │
-                                             ▼
-                                  [Compiled 1:1 PDF]
+ML Based/
+├── core_pipeline/           # Core Machine Learning Training & Inference Engines
+│   ├── train_dual_models.py           # Multi-Document Model 1 & Model 2 Training
+│   ├── template_style_classifier.py    # 20D Publisher Style Predictor (Model 2)
+│   ├── infer_pdf.py                   # 100% Dynamic PDF Inference Engine
+│   ├── infer.py                       # DOCX Paragraph Inference Engine
+│   └── TSPdf.py                       # 9D Paragraph Feature Extractor
+│
+├── extraction_tuning/       # Subject Asset Harvesters & Master Template Generators
+│   ├── subject_template_engine.py     # Subject-Specific Master Template Synthesizer
+│   ├── build_master_template.py       # Design Token Extraction & Master Template Generator
+│   ├── extract_all_figure_captions.py # 300 DPI Figure & Scientist Portrait NER Engine
+│   ├── detect_pdf_drawing_boxes.py    # Vector Shading Callout Box Harvester
+│   └── clean_table_manifest.py        # 1:1 Table Schema Harvester
+│
+├── debugging_tools/         # Inspection, Diagnostics & Preview Generation
+│   ├── debug_image_bboxes.py          # Bounding Box Area Ratio Inspector
+│   ├── inspect_vector_graphs.py       # Math Vector Graph Cluster Analyzer
+│   ├── inspect_kemh102_layout.py      # NCERT Math Page Geometry Inspector
+│   └── render_pdf_page_images.py      # PyMuPDF Page Renderer
+│
+├── templates/               # Subject Master Typst Design Systems (.typ)
+│   ├── kemh_template.typ              # Mathematics (Royal Teal #00adef, Pill Banner, Single Column)
+│   ├── kech_template.typ              # Chemistry (Header Blue #1b4f9c, Green Notes, Pink Problem Boxes)
+│   ├── keph_template.typ              # Physics (Burgundy Red #800000, Cyan Note Boxes)
+│   └── kebo_template.typ              # Biology (Forest Green #1e6b37, Lime Callouts)
+│
+├── models/                  # Serialized Machine Learning Model Weights (.joblib)
+│   ├── ncert_classifier.joblib        # Model 1 Paragraph Semantic Classifier
+│   └── ncert_template_model.joblib   # Model 2 Publisher Style Classifier
+│
+├── Training_DOc/            # Multi-Subject Training Datasets (DOCX & PDF pairs)
+├── testing_doc/             # Testing Dataset PDFs (kemh102.pdf)
+└── images/                  # Extracted 300 DPI Figures & Spatial Vector Graphs
 ```
-
----
-
-## 🚀 Key Features
-
-* **Machine Learning Tag Classifier (`TSPdf.py` & `infer.py`)**: Trained Random Forest model (98%+ accuracy) predicting semantic roles for headings, body text, problem boxes, callouts, and captions.
-* **100% Dynamic Asset Harvesting (`extract_all_figure_captions.py`)**: Named Entity Recognition (NER) regex engines dynamically extract figure clips (`Fig. X.X`) and scientist portraits (*John Dalton, Antoine Lavoisier, etc.*) at 300 DPI without hardcoded lists.
-* **Structured 1:1 Table Engine (`clean_table_manifest.py`)**: Extracted clean table schemas for multi-column and full-width tables (`Table 1.1`, `Table 1.2`, `Table 1.3`, `Table 1.4`, Isotope Table).
-* **Vector Callout Detector (`detect_pdf_drawing_boxes.py`)**: Vector shading analyzer detecting green notes and pink problem boxes.
-* **1:1 Page 1 Opening Engine**: Renders `UNIT 1` header, QR code, 12 Objectives list in full left column, and Roald Hoffmann quote in right column.
-* **Automated Master Template Generator (`build_master_template.py`)**: Dynamically extracts brand color palettes (`#1b4f9c` Header Blue, `#ebf5ed` Green), page margins, and 2-column layout tokens from any reference PDF.
 
 ---
 
 ## 🛠️ Usage Instructions
 
-### Run Inference & Local PDF Compilation
+### 1. Run 100% Dynamic PDF Inference
 ```powershell
-python infer.py
+python core_pipeline/infer_pdf.py
 ```
 
-### Harvest Figures & Portraits (300 DPI)
+### 2. Train Dual Models Across All 12 Chapters
 ```powershell
-python extract_all_figure_captions.py
+python core_pipeline/train_dual_models.py
 ```
 
-### Generate Master Typst Template
+### 3. Generate Subject Master Templates
 ```powershell
-python build_master_template.py
+python extraction_tuning/subject_template_engine.py
 ```
-
----
-
-## 📄 Core Outputs
-* **Typst Source**: `reconstructed_chapter_1.typ`
-* **Compiled PDF**: `reconstructed_chapter_1.pdf`
-* **Master Design System**: `ncert_template.typ`
