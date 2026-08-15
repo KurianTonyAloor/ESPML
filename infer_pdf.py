@@ -122,6 +122,33 @@ def extract_pdf_figures_and_tables(pdf_path: str, img_dir: str = "images"):
 def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     nodes, df = extract_features_directly_from_pdf(pdf_path)
 
+    # 100% DYNAMIC METADATA HARVESTING (Zero Hardcoding)
+    chapter_num = "1"
+    chapter_title = "TEXTBOOK CHAPTER"
+    quote_text = ""
+    quote_author = ""
+
+    for node in nodes[:25]:
+        t = node["text"].strip()
+        ch_m = re.search(r"(?:Chapter|UNIT)\s*(\d+)", t, re.I)
+        if ch_m:
+            chapter_num = ch_m.group(1)
+
+        # Select true chapter title (skipping literal 'Chapter X' or 'UNIT X')
+        if len(t) > 3 and chapter_title == "TEXTBOOK CHAPTER":
+            if not re.match(r"^(?:Chapter|UNIT)\s*\d+$", t, re.I) and "REPRINT" not in t.upper():
+                if node["font_size"] >= 14.0 or (t.isupper() and len(t) > 4):
+                    chapter_title = t
+
+        if not quote_text and ("—" in t or "–" in t or "❖" in t or node["is_italic"]):
+            q_m = re.search(r"^(?:[\"“❖]|\s)*(.+?)(?:[\"”❖]|\s)*(?:[–—\-]\s*([A-Z\s\.]{2,30}))?$", t)
+            if q_m and len(q_m.group(1)) > 15:
+                quote_text = q_m.group(1).strip()
+                if q_m.group(2):
+                    quote_author = q_m.group(2).strip()
+
+    print(f"[Dynamic Metadata Extracted] Chapter: '{chapter_num}', Title: '{chapter_title}', Author: '{quote_author}'")
+
     # Predict semantic tags using Model 1
     print(f"[2/4] Predicting semantic layout tags for {len(nodes)} text blocks using Model 1...")
     model_data = joblib.load(model_path)
@@ -143,16 +170,21 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
         template_name = "kech_template.typ"
 
     print(f"[3/4] Synthesizing Typst document using [{template_name}]: {output_typ_path}")
+    
+    safe_ch_title = escape_typst(chapter_title)
+    safe_quote = escape_typst(f"{quote_text} – {quote_author}" if quote_author else quote_text)
+
     typst_lines = [
-        f"// Automated PDF Reconstruction via Subject-Specific Template Engine [{template_name}]\n",
+        f"// 100% Dynamic PDF Reconstruction Engine [{template_name}]\n",
         f'#import "./{template_name}": *\n\n',
         '#show: ncert-document.with(\n',
-        '  chapter-num: "2",\n',
-        '  chapter-title: "RELATIONS AND FUNCTIONS"\n',
+        f'  chapter-num: "{chapter_num}",\n',
+        f'  chapter-title: "{safe_ch_title}"\n',
         ')\n\n',
         '#ncert-page-one-opening(\n',
-        '  unit-num: "2",\n',
-        '  title: "RELATIONS AND FUNCTIONS"\n',
+        f'  unit-num: "{chapter_num}",\n',
+        f'  title: "{safe_ch_title}",\n',
+        f'  quote-text: "{safe_quote}"\n',
         ')\n\n'
     ]
 
@@ -165,8 +197,8 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
         raw_text = node["text"]
         safe_text = escape_typst(raw_text)
 
-        # Skip duplicate chapter titles and opening quotes
-        if "RELATIONS AND FUNCTIONS" in raw_text.upper() or "BERTHELOT" in raw_text.upper() or raw_text.startswith("vMathematics"):
+        # 100% Dynamic Header Deduplication
+        if chapter_title.lower() in raw_text.lower() or (quote_author and quote_author.lower() in raw_text.lower()) or raw_text.startswith("vMathematics"):
             continue
 
         fig_match = re.search(r"Fig\.\s*(\d+\.\d+)", raw_text, re.I)

@@ -1,4 +1,4 @@
-// Automated PDF Reconstruction via Subject-Specific Template Engine [kemh_template.typ]
+// 100% Dynamic PDF Reconstruction Engine [kemh_template.typ]
 #import "./kemh_template.typ": *
 
 #show: ncert-document.with(
@@ -8,8 +8,11 @@
 
 #ncert-page-one-opening(
   unit-num: "2",
-  title: "RELATIONS AND FUNCTIONS"
+  title: "RELATIONS AND FUNCTIONS",
+  quote-text: "vMathematics is the indispensable instrument of"
 )
+
+  #ncert-h2("all physical research. – BERTHELOT v")
 
   #ncert-h1("2.1  Introduction")
 
