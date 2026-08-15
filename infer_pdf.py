@@ -22,7 +22,8 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
     """
     Extracts assets with strict subject-specific rules:
     - CHEMISTRY (kech): Retains composite visual caption clipping (Fig 1.2, 1.10) & 2-column callouts.
-    - MATHEMATICS (kemh): Filters full-page background images (w>400, h>500) AND harvests Vector Math Graphs (Venn diagrams, set circles, cartesian graphs).
+    - MATHEMATICS (kemh): Filters full-page background images (AreaRatio > 20% or w > 260pt) 
+      AND harvests true isolated Math Figures (Leibniz portrait, Venn diagrams, set circles, cartesian graphs).
     """
     os.makedirs(img_dir, exist_ok=True)
     doc = fitz.open(pdf_path)
@@ -34,22 +35,25 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
         page = doc[page_num]
         p_width = page.rect.width
         p_height = page.rect.height
+        p_area = p_width * p_height
 
         if subject_prefix == "kemh":
-            # 1. MATHEMATICS: Extract Raster Images (Filtering full-page watermarks/canvas)
+            # 1. MATHEMATICS: Extract Real Isolated Raster Images (Strict AreaRatio <= 20.0%, w <= 260pt, h <= 280pt)
             img_info = page.get_image_info()
             for idx, info in enumerate(img_info):
                 bbox = [round(v, 1) for v in info["bbox"]]
                 x0, y0, x1, y1 = bbox
                 w = x1 - x0
                 h = y1 - y0
+                area = w * h
+                area_ratio = area / p_area
 
-                # REJECT FULL-PAGE WATERMARKS / BACKGROUND CANVAS (w > 400 or h > 500)
-                if w > 25 and h > 25 and w < 400 and h < 500 and (w / p_width) < 0.85 and (h / p_height) < 0.80:
-                    clip_rect = fitz.Rect(max(0, x0 - 2), max(0, y0 - 2), min(p_width, x1 + 2), y1 + 2)
+                # STRICT ISOLATED FIGURE FILTER (Filters out all canvas/watermark overlays > 20% area or > 260pt width)
+                if w > 25 and h > 25 and w <= 260 and h <= 280 and area_ratio <= 0.20 and x0 >= 0 and y0 >= 0:
+                    clip_rect = fitz.Rect(max(0, x0 - 2), max(0, y0 - 2), min(p_width, x1 + 2), min(p_height, y1 + 2))
                     pix = page.get_pixmap(clip=clip_rect, dpi=300)
                     
-                    img_filename = f"math_raster_p{page_num+1}_{idx}.png"
+                    img_filename = f"math_real_img_p{page_num+1}_{idx}.png"
                     img_path = os.path.join(img_dir, img_filename)
                     pix.save(img_path)
 
@@ -65,15 +69,17 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                         "src": f"images/{img_filename}"
                     })
 
-            # 2. MATHEMATICS: Harvest Vector Math Graphs (Venn Diagrams, Set Circles, Coordinate Graphs)
+            # 2. MATHEMATICS: Harvest Isolated Vector Math Graphs (Venn Diagrams, Set Circles, Coordinate Graphs)
             drawings = page.get_drawings()
             graph_clusters = []
             for d in drawings:
                 r = d["rect"]
                 w = r.x1 - r.x0
                 h = r.y1 - r.y0
-                # Identify vector shape clusters representing math graphs/Venn diagrams
-                if w > 20 and h > 20 and w < 380 and h < 380 and (w / p_width) < 0.85:
+                area_ratio = (w * h) / p_area
+                
+                # Isolated vector graph shapes only (w <= 260pt, h <= 260pt, AreaRatio <= 18%)
+                if w > 20 and h > 20 and w <= 260 and h <= 260 and area_ratio <= 0.18 and r.x0 >= 20 and r.y0 >= 40:
                     # Check if not duplicate of existing cluster
                     is_dup = False
                     for existing in graph_clusters:
@@ -84,7 +90,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                         graph_clusters.append(r)
 
             for g_idx, g_rect in enumerate(graph_clusters):
-                clip_rect = fitz.Rect(max(0, g_rect.x0 - 5), max(0, g_rect.y0 - 5), min(p_width, g_rect.x1 + 5), min(p_height, g_rect.y1 + 5))
+                clip_rect = fitz.Rect(max(0, g_rect.x0 - 3), max(0, g_rect.y0 - 3), min(p_width, g_rect.x1 + 3), min(p_height, g_rect.y1 + 3))
                 pix = page.get_pixmap(clip=clip_rect, dpi=300)
                 
                 v_filename = f"math_vector_graph_p{page_num+1}_{g_idx}.png"
@@ -105,8 +111,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 })
 
         else:
-            # CHEMISTRY (kech) & OTHER SUBJECTS (RETAINED UNCHANGED):
-            # Caption-anchored visual extraction
+            # CHEMISTRY (kech) & OTHER SUBJECTS (100% UNCHANGED):
             blocks = page.get_text("dict")["blocks"]
             for b in blocks:
                 if b.get("type") == 0:
@@ -133,7 +138,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                         })
 
     doc.close()
-    print(f"Extracted {len(spatial_assets)} subject assets for [{subject_prefix.upper()}].")
+    print(f"Extracted {len(spatial_assets)} real isolated assets for [{subject_prefix.upper()}].")
     return spatial_assets
 
 def extract_features_directly_from_pdf(pdf_path: str):
@@ -307,12 +312,12 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
         if item["elem_type"] == "IMAGE":
             img = item["data"]
             img_src = img["src"]
-            w_pct = int(img["width_ratio"] * 100) if "width_ratio" in img else 80
+            w_pct = int(img["width_ratio"] * 100) if "width_ratio" in img else 40
             
             if img.get("is_right_side"):
-                typst_lines.append(f'  #align(right)[#ncert-figure("./{img_src}", caption: "", width: {max(25, min(50, w_pct))}%)]\n\n')
+                typst_lines.append(f'  #align(right)[#ncert-figure("./{img_src}", caption: "", width: {max(20, min(40, w_pct))}%)]\n\n')
             else:
-                typst_lines.append(f'  #align(center)[#ncert-figure("./{img_src}", caption: "", width: {min(95, max(35, w_pct))}%)]\n\n')
+                typst_lines.append(f'  #align(center)[#ncert-figure("./{img_src}", caption: "", width: {min(75, max(30, w_pct))}%)]\n\n')
 
         else:  # TEXT node
             node = item["data"]

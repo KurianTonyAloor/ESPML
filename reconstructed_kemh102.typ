@@ -12,23 +12,17 @@
   quote-text: "vMathematics is the indispensable instrument of"
 )
 
-  #align(center)[#ncert-figure("./images/math_raster_p1_1.png", caption: "", width: 35%)]
+  #align(center)[#ncert-figure("./images/math_real_img_p1_1.png", caption: "", width: 30%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p1_0.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p1_0.png", caption: "", width: 20%)]
 
   #ncert-h1("Chapter 2")
-
-  #align(center)[#ncert-figure("./images/math_vector_graph_p1_1.png", caption: "", width: 78%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p1_3.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p1_5.png", caption: "", width: 84%)]
 
   #ncert-h2("all physical research. – BERTHELOT v")
 
   #ncert-h1("2.1  Introduction")
 
-  #align(right)[#ncert-figure("./images/math_raster_p1_0.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_real_img_p1_0.png", caption: "", width: 25%)]
 
   Much of mathematics is about finding a pattern – arecognisable link between quantities that change. In ourdaily life, we come across many patterns that characteriserelations such as brother and sister, father and son, teacherand student. In mathematics also, we come across manyrelations such as number m is less than number n, line l isparallel to line m, set A is a subset of set B. In all these, wenotice that a relation involves pairs of objects in certainorder. In this Chapter, we will learn how to link pairs ofobjects from two sets and then introduce relations betweenthe two objects in the pair. Finally, we will learn aboutspecial relations which will qualify to be functions. Theconcept of function is very important in mathematics since it captures the idea of amathematically precise correspondence between one quantity with the other.
 
@@ -55,10 +49,6 @@
   #ncert-green-box(title: "", [Definition 1 Given two non-empty sets P and Q. The cartesian product P × Q is theset of all ordered pairs of elements from P and Q, i.e.,])
 
   P × Q = { (p,q) : p  ∈ P, q  ∈ Q }If either P or Q is the null set, then P × Q will also be empty set, i.e., P × Q = φ
-
-  #align(center)[#ncert-figure("./images/math_raster_p2_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p2_3.png", caption: "", width: 84%)]
 
   From the illustration given above we note thatA × B = {(red,b), (red,c), (red,s), (blue,b), (blue,c), (blue,s)}.Again, consider the two sets:A = {DL, MP, KA}, where DL, MP, KA represent Delhi,Madhya Pradesh and Karnataka, respectively and B = {01,02,03}representing codes for the licence plates of vehicles issuedby DL, MP and KA .
 
@@ -97,10 +87,6 @@
   A × B.
 
   #ncert-h2("(iv)A × A × A = {(a, b, c) : a, b, c ∈ A}. Here (a, b, c) is called an ordered")
-
-  #align(center)[#ncert-figure("./images/math_raster_p3_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p3_3.png", caption: "", width: 84%)]
 
   #ncert-h2("triplet.")
 
@@ -144,10 +130,6 @@
 
   #ncert-h2("and R × R × R represent?")
 
-  #align(center)[#ncert-figure("./images/math_raster_p4_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p4_3.png", caption: "", width: 84%)]
-
   Solution The Cartesian product R × R represents the set R × R={(x, y) : x, y ∈ R}which represents the coordinates of all the points in two dimensional space and thecartesian product R × R × R represents the set R × R × R ={(x, y, z) : x, y, z ∈ R}which  represents the coordinates of all the points in three-dimensional space.
 
   #ncert-h2("Example 6 If A × B ={(p, q),(p, r), (m, q), (m, r)}, find A and B.")
@@ -174,13 +156,9 @@
 
   #ncert-h1("2.3  RelationsConsider the two sets P = {a, b, c} and Q = {Ali, Bhanu, Binoy, Chandra, Divya}.The cartesian product ofP and Q has 15 ordered pairs whichcan be listed as P × Q = {(a, Ali),(a,Bhanu), (a, Binoy), ..., (c, Divya)}.")
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p5_0.png", caption: "", width: 35%)]
+  #align(center)[#ncert-figure("./images/math_vector_graph_p5_0.png", caption: "", width: 30%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p5_1.png", caption: "", width: 25%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p5_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p5_3.png", caption: "", width: 84%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p5_1.png", caption: "", width: 20%)]
 
   We can now obtain a subset ofP × Q by introducing a relation Rbetween the first element x and thesecond element y of each ordered pair(x, y) as
 
@@ -208,9 +186,9 @@
 
   Reprint 2026-27
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_1.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p6_0.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_2.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p6_1.png", caption: "", width: 20%)]
 
   The corresponding arrow diagram isshown in Fig 2.5.
 
@@ -218,21 +196,17 @@
 
   Similarly, the range = {2, 3, 4, 5, 6}and the codomain = {1, 2, 3, 4, 5, 6}.
 
-  #align(center)[#ncert-figure("./images/math_raster_p6_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p6_3.png", caption: "", width: 84%)]
-
   #ncert-h2("Fig 2.5")
 
   #ncert-problem-box(title: "Example", [Example 8 The Fig 2.6 shows a relationbetween the sets P and Q. Write this relation (i) in set-builder form, (ii) in roster form.What is its domain and range?])
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_3.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p6_2.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_4.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p6_3.png", caption: "", width: 20%)]
 
   #ncert-h2("Solution It is obvious that the relation R is")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p6_5.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p6_4.png", caption: "", width: 20%)]
 
   #ncert-h2("“x is the square of y”.")
 
@@ -245,8 +219,6 @@
   (9, –3), (4, 2), (4, –2), (25, 5), (25, –5)}The domain of this relation is {4, 9, 25}.The range of this relation is {– 2, 2, –3, 3, –5, 5}.Note that the element 1 is not related to any element in set P.The set Q is the codomain of this relation.
 
   ANote  The total number of relations that can be defined from a set A to a set Bis the number of  possible subsets of A × B. If n(A ) =  p and n(B) = q, thenn (A × B) = pq and the total number of relations is 2pq.
-
-  #align(center)[#ncert-figure("./images/math_vector_graph_p6_0.png", caption: "", width: 79%)]
 
   #ncert-problem-box(title: "Example", [Example 9 Let A = {1, 2} and B = {3, 4}. Find the number of relations from A to B.])
 
@@ -268,17 +240,13 @@
 
   3.A = {1, 2, 3, 5} and B = {4, 6, 9}. Define a relation R from A to B byR = {(x, y): the difference between x and y is odd; x ∈ A, y ∈ B}. Write R inroster form.
 
-  #align(center)[#ncert-figure("./images/math_raster_p7_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p7_3.png", caption: "", width: 84%)]
-
   #ncert-h2("4.The Fig2.7 shows a relationshipbetween the sets P and Q. Write thisrelation")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p7_0.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p7_0.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p7_1.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p7_1.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p7_2.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p7_2.png", caption: "", width: 24%)]
 
   (i) in set-builder form (ii) roster form.What is its domain and range?5.Let A = {1, 2, 3, 4, 6}. Let R be therelation on A defined by{(a, b): a , b ∈A, b is exactly divisible by a}.
 
@@ -304,10 +272,6 @@
 
   Again, the relation in Example 8 is not a function because the elements in thedomain are connected to more than one images. Similarly, the relation in  Example 9 isalso not a function. (Why?) In the examples given below, we will see many morerelations some of which are functions and others are not.
 
-  #align(center)[#ncert-figure("./images/math_raster_p8_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p8_3.png", caption: "", width: 84%)]
-
   #ncert-problem-box(title: "Example", [Example 10 Let N be the set of natural numbers and the relation R be defined onN such that  R = {(x, y) : y = 2x, x, y ∈ N}.])
 
   What is the domain, codomain and range of R? Is this relation a function?
@@ -328,15 +292,11 @@
 
   f : Nà N by f (x) = 2x + 1. Using this definition, complete the table given below.
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p8_0.png", caption: "", width: 79%)]
-
   #ncert-h2("x1234567")
 
   yf (1) = ...f (2) = ...f (3) = ...f (4) = ...f (5) = ...f (6) = ...f (7) = ...
 
   #ncert-h2("Solution The completed table is given by")
-
-  #align(center)[#ncert-figure("./images/math_vector_graph_p8_1.png", caption: "", width: 79%)]
 
   #ncert-h2("x1234567")
 
@@ -348,11 +308,7 @@
 
   #ncert-h2("2.4.1  Some functions and their graphs(i)Identity function  Let R be the set of real numbers. Define the real valuedfunction f : R → R by y =  f(x) = x for each x ∈ R. Such a function is called theidentity function. Here the domain and range of f are R. The graph is a straight line asshown in Fig 2.8. It passes through the origin.")
 
-  #align(center)[#ncert-figure("./images/math_raster_p9_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p9_3.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_vector_graph_p9_0.png", caption: "", width: 35%)]
+  #align(center)[#ncert-figure("./images/math_vector_graph_p9_0.png", caption: "", width: 30%)]
 
   Fig 2.8(ii)Constant function Define the function f: R → R by y = f (x) = c, x ∈ R wherec is a constant and each x ∈ R. Here domain of f is R and its range is {c}.
 
@@ -364,10 +320,6 @@
 
   (iii)Polynomial function A function f : R → R is said to be polynomial function iffor each x in R, y  =  f (x) = a0 + a1x  + a2x2 + ...+ an xn, where n is a non-negativeinteger and  a0, a1, a2,...,an∈R.
 
-  #align(center)[#ncert-figure("./images/math_raster_p10_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p10_3.png", caption: "", width: 84%)]
-
   The functions defined by f(x) = x3 – x2 + 2, and g(x) = x4 + 2 x are some examples
 
   #ncert-h2("23x + 2x is not apolynomial function.(Why?)")
@@ -376,15 +328,11 @@
 
   #ncert-problem-box(title: "Example", [Example 13 Define the function f: R → R by y = f(x) = x2, x ∈ R. Complete theTable given below by using this definition. What is the domain and range of this function?Draw the graph of f.])
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p10_1.png", caption: "", width: 69%)]
-
   #ncert-h2("x– 4–3–2–101234")
 
   #ncert-h2("y = f(x) = x2")
 
   #ncert-h2("Solution The completed Table is given below:")
-
-  #align(center)[#ncert-figure("./images/math_vector_graph_p10_0.png", caption: "", width: 69%)]
 
   #ncert-h2("x– 4–3–2–101234")
 
@@ -394,7 +342,7 @@
 
   #ncert-h2("Domain of f = {x : x∈R}. Range of f   = {x")
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p10_2.png", caption: "", width: 35%)]
+  #align(center)[#ncert-figure("./images/math_vector_graph_p10_0.png", caption: "", width: 30%)]
 
   #ncert-h2("Fig 2.10")
 
@@ -406,13 +354,9 @@
 
   Solution We havef(0) = 0, f(1) = 1, f(–1) = –1, f(2) = 8, f(–2) = –8,  f(3) = 27; f(–3) = –27, etc.Therefore,   f = {(x,x3): x∈R}.The graph of f is given in Fig 2.11.
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p11_2.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p11_0.png", caption: "", width: 20%)]
 
-  #align(center)[#ncert-figure("./images/math_raster_p11_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p11_3.png", caption: "", width: 84%)]
-
-  #align(right)[#ncert-figure("./images/math_vector_graph_p11_3.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p11_1.png", caption: "", width: 20%)]
 
   #ncert-h2("Fig 2.11")
 
@@ -424,8 +368,6 @@
 
   #ncert-h2("x ∈ R –{0}.  Complete the Table given below using this definition. What is the domainand range of this function?")
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p11_1.png", caption: "", width: 72%)]
-
   #ncert-h2("x–2–1.5–1–0.50.250.511.52")
 
   #ncert-h2("y  = 1")
@@ -433,8 +375,6 @@
   #ncert-h2("x...........................")
 
   #ncert-h2("Solution The completed Table is given by")
-
-  #align(center)[#ncert-figure("./images/math_vector_graph_p11_0.png", caption: "", width: 75%)]
 
   #ncert-h2("x–2–1.5–1–0.50.250.511.52")
 
@@ -446,17 +386,13 @@
 
   The domain is all real numbers except 0 and its range is also all real numbersexcept 0. The graph of f is given in Fig 2.12.
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p12_1.png", caption: "", width: 35%)]
+  #align(center)[#ncert-figure("./images/math_vector_graph_p12_1.png", caption: "", width: 30%)]
 
-  #align(center)[#ncert-figure("./images/math_raster_p12_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p12_3.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_vector_graph_p12_2.png", caption: "", width: 35%)]
+  #align(center)[#ncert-figure("./images/math_vector_graph_p12_2.png", caption: "", width: 30%)]
 
   #ncert-h2("Fig 2.12")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p12_0.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p12_0.png", caption: "", width: 24%)]
 
   (v)The Modulus function The functionf: R→R defined by f(x) = |x| for eachx ∈R is called modulus function. For eachnon-negative value of x,  f(x) is equal to x.But for negative values of x, the value off(x) is the negative of the value of x, i.e.,
 
@@ -490,10 +426,6 @@
 
   is called the signum function. The domain of the signum function is R and the range isthe set {–1, 0, 1}. The graph of the signum function is given by the Fig 2.14.
 
-  #align(center)[#ncert-figure("./images/math_raster_p13_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p13_3.png", caption: "", width: 84%)]
-
   #ncert-h2("Fig 2.14")
 
   (vii) Greatest integer functionThe function  f: R → R definedby f(x) = \[x\], x ∈R  assumes thevalue of the greatest integer, lessthan or equal to x. Such a functionis called the greatest integerfunction.
@@ -517,10 +449,6 @@
   (ii)Subtraction of a real function from another Let f : X → R and g: X → R beany two real functions, where X ⊂R. Then, we define (f – g) : X→R by(f–g) (x) = f(x) –g(x), for all x ∈ X.
 
   (iii)Multiplication by a scalar Let f : X→R be a real valued function and α be ascalar. Here by scalar, we mean a real number. Then the product α f is a function fromX to R defined by (α f ) (x) =  α f (x), x ∈X.
-
-  #align(center)[#ncert-figure("./images/math_raster_p14_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p14_3.png", caption: "", width: 84%)]
 
   (iv)Multiplication of two real functions The product (or multiplication) of two realfunctions f:X→R and g:X→R is a function fg:X→R defined by(fg) (x) = f(x) g(x), for all x ∈ X.This is also called pointwise multiplication.
 
@@ -578,10 +506,6 @@
 
   (i){(2,1), (5,1), (8,1), (11,1), (14,1), (17,1)}(ii){(2,1), (4,2), (6,3), (8,4), (10,5), (12,6), (14,7)}(iii){(1,3), (1,5), (2,5)}.2.Find the domain and range of the following real functions:
 
-  #align(center)[#ncert-figure("./images/math_raster_p15_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p15_3.png", caption: "", width: 84%)]
-
   #ncert-h2("(i)f(x) = – x(ii)f(x) = 29x−.")
 
   #ncert-h2("3.A function f is defined by f(x) = 2x –5. Write down the values of")
@@ -604,7 +528,7 @@
 
   #ncert-h2("f: R→R by f(x) = x + 10")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p15_0.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p15_0.png", caption: "", width: 20%)]
 
   and sketch the graph of this function.
 
@@ -621,10 +545,6 @@
   (i)(a,a) ∈ R for all a ∈ Q(ii)(a,b) ∈ R implies that (b, a) ∈ R(iii)(a,b) ∈ R and (b,c) ∈ R implies that (a,c) ∈R
 
   Solution(i)Since, a – a = 0 ∈ Z, if follows that (a, a) ∈ R.(ii)(a,b) ∈ R implies that a – b ∈ Z. So, b – a ∈ Z. Therefore,(b, a) ∈ R(iii)(a, b) and (b, c)  ∈ R implies that a – b ∈ Z. b – c ∈ Z.  So,      a – c = (a – b) + (b – c) ∈ Z. Therefore, (a,c) ∈ R
-
-  #align(center)[#ncert-figure("./images/math_raster_p16_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p16_3.png", caption: "", width: 84%)]
 
   #ncert-problem-box(title: "Example", [Example 20  Let f = {(1,1), (2,3), (0, –1), (–1, –3)} be a linear function from Z into Z.Find f(x).])
 
@@ -650,9 +570,9 @@
 
   #ncert-h2("x, x")
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p16_0.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p16_0.png", caption: "", width: 20%)]
 
-  #align(right)[#ncert-figure("./images/math_vector_graph_p16_1.png", caption: "", width: 25%)]
+  #align(right)[#ncert-figure("./images/math_vector_graph_p16_1.png", caption: "", width: 20%)]
 
   #ncert-h2(", x")
 
@@ -701,10 +621,6 @@
   2 , 02( )
 
   #ncert-h2("≤≤=≤≤Show that f is a function and g is not a function.")
-
-  #align(center)[#ncert-figure("./images/math_raster_p17_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p17_3.png", caption: "", width: 84%)]
 
   #ncert-h2("xxg x")
 
@@ -760,10 +676,6 @@
 
   11.Let f be the subset of Z × Z defined by f = {(ab, a + b) : a, b ∈ Z}. Is f afunction from Z to Z? Justify your answer.12.Let A = {9,10,11,12,13} and let f : A→N be defined by f (n) = the highest primefactor of n. Find the range of f.
 
-  #align(center)[#ncert-figure("./images/math_raster_p18_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p18_3.png", caption: "", width: 84%)]
-
   #ncert-h2("Summary")
 
   #ncert-h2("A × B =  {(a, b): a ∈ A, b ∈ B}")
@@ -788,15 +700,9 @@
 
   ® The range of the function is the set of images.® A real function has the set of real numbers or one of its subsets both as its
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p19_1.png", caption: "", width: 79%)]
-
   domain and as its range.® Algebra of functions For functions f : X  → R and g : X → R, we have
 
   #ncert-h2("(f + g) (x) = f (x) + g(x), x ∈ X")
-
-  #align(center)[#ncert-figure("./images/math_raster_p19_1.png", caption: "", width: 84%)]
-
-  #align(center)[#ncert-figure("./images/math_raster_p19_3.png", caption: "", width: 84%)]
 
   #ncert-h2("(f – g) (x) = f (x) – g(x), x ∈ X")
 
@@ -810,13 +716,11 @@
 
   =
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p19_0.png", caption: "", width: 79%)]
-
   #ncert-h2("Historical Note")
 
   The word FUNCTION first appears in a Latin manuscript “Methodustangentium inversa, seu de fuctionibus” written by Gottfried Wilhelm Leibnitz(1646-1716) in 1673; Leibnitz used the word in the non-analytical sense. Heconsidered a function in terms of “mathematical job” – the “employee” beingjust a curve.
 
-  #align(center)[#ncert-figure("./images/math_vector_graph_p19_2.png", caption: "", width: 35%)]
+  #align(center)[#ncert-figure("./images/math_vector_graph_p19_0.png", caption: "", width: 30%)]
 
   On July 5, 1698, Johan Bernoulli, in a letter to Leibnitz, for the first timedeliberately  assigned a specialised use of the term function in the analyticalsense. At the end of that month, Leibnitz replied showing his approval.
 
