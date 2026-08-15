@@ -22,6 +22,12 @@ ML Based/
 │   ├── detect_pdf_drawing_boxes.py    # Vector Shading Callout Box Harvester
 │   └── clean_table_manifest.py        # 1:1 Table Schema Harvester
 │
+├── manifests/               # JSON Manifests & Spatial Anchor Schemas
+│   ├── callout_box_manifest.json      # Vector Callout Box Shading Rectangles
+│   ├── spatial_anchor_manifest.json   # 5D Spatial Bounding-Box Sequence Graph
+│   ├── spatial_nodes.json             # Extracted Node Coordinates
+│   └── table_manifest.json            # 1:1 Clean Table Schemas
+│
 ├── debugging_tools/         # Inspection, Diagnostics & Preview Generation
 │   ├── debug_image_bboxes.py          # Bounding Box Area Ratio Inspector
 │   ├── inspect_vector_graphs.py       # Math Vector Graph Cluster Analyzer
