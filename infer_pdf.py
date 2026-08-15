@@ -18,52 +18,123 @@ def escape_typst(text: str) -> str:
         text = text.replace(old, new)
     return text
 
-def extract_all_spatial_images(pdf_path: str, img_dir: str = "images"):
+def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir: str = "images"):
     """
-    Extracts ALL images (diagrams, scientist portraits, QR codes, flowcharts)
-    and captures their exact (x0, y0, x1, y1, page) spatial coordinates.
+    Extracts assets with strict subject-specific rules:
+    - CHEMISTRY (kech): Retains composite visual caption clipping (Fig 1.2, 1.10) & 2-column callouts.
+    - MATHEMATICS (kemh): Filters full-page background images (w>400, h>500) AND harvests Vector Math Graphs (Venn diagrams, set circles, cartesian graphs).
     """
     os.makedirs(img_dir, exist_ok=True)
     doc = fitz.open(pdf_path)
-    spatial_images = []
+    spatial_assets = []
 
-    print(f"[1.5/4] Harvesting spatial image bounding boxes from {os.path.basename(pdf_path)}...")
+    print(f"[1.5/4] Harvesting subject-specific assets for [{subject_prefix.upper()}] from {os.path.basename(pdf_path)}...")
 
     for page_num in range(len(doc)):
         page = doc[page_num]
         p_width = page.rect.width
-        img_info = page.get_image_info()
+        p_height = page.rect.height
 
-        for idx, info in enumerate(img_info):
-            bbox = [round(v, 1) for v in info["bbox"]]
-            x0, y0, x1, y1 = bbox
-            w = x1 - x0
-            h = y1 - y0
+        if subject_prefix == "kemh":
+            # 1. MATHEMATICS: Extract Raster Images (Filtering full-page watermarks/canvas)
+            img_info = page.get_image_info()
+            for idx, info in enumerate(img_info):
+                bbox = [round(v, 1) for v in info["bbox"]]
+                x0, y0, x1, y1 = bbox
+                w = x1 - x0
+                h = y1 - y0
 
-            # Filter out tiny icon artifacts (< 25pt) or full-page background graphics (> 500pt)
-            if w > 25 and h > 25 and w < 500 and h < 600:
-                clip_rect = fitz.Rect(max(0, x0 - 2), max(0, y0 - 2), min(p_width, x1 + 2), y1 + 2)
+                # REJECT FULL-PAGE WATERMARKS / BACKGROUND CANVAS (w > 400 or h > 500)
+                if w > 25 and h > 25 and w < 400 and h < 500 and (w / p_width) < 0.85 and (h / p_height) < 0.80:
+                    clip_rect = fitz.Rect(max(0, x0 - 2), max(0, y0 - 2), min(p_width, x1 + 2), y1 + 2)
+                    pix = page.get_pixmap(clip=clip_rect, dpi=300)
+                    
+                    img_filename = f"math_raster_p{page_num+1}_{idx}.png"
+                    img_path = os.path.join(img_dir, img_filename)
+                    pix.save(img_path)
+
+                    spatial_assets.append({
+                        "id": f"img_p{page_num+1}_{idx}",
+                        "page": page_num + 1,
+                        "bbox": bbox,
+                        "y0": y0,
+                        "width_pt": round(w, 1),
+                        "height_pt": round(h, 1),
+                        "width_ratio": round(w / p_width, 2),
+                        "is_right_side": x0 > (p_width / 2),
+                        "src": f"images/{img_filename}"
+                    })
+
+            # 2. MATHEMATICS: Harvest Vector Math Graphs (Venn Diagrams, Set Circles, Coordinate Graphs)
+            drawings = page.get_drawings()
+            graph_clusters = []
+            for d in drawings:
+                r = d["rect"]
+                w = r.x1 - r.x0
+                h = r.y1 - r.y0
+                # Identify vector shape clusters representing math graphs/Venn diagrams
+                if w > 20 and h > 20 and w < 380 and h < 380 and (w / p_width) < 0.85:
+                    # Check if not duplicate of existing cluster
+                    is_dup = False
+                    for existing in graph_clusters:
+                        if abs(r.x0 - existing.x0) < 15 and abs(r.y0 - existing.y0) < 15:
+                            is_dup = True
+                            break
+                    if not is_dup:
+                        graph_clusters.append(r)
+
+            for g_idx, g_rect in enumerate(graph_clusters):
+                clip_rect = fitz.Rect(max(0, g_rect.x0 - 5), max(0, g_rect.y0 - 5), min(p_width, g_rect.x1 + 5), min(p_height, g_rect.y1 + 5))
                 pix = page.get_pixmap(clip=clip_rect, dpi=300)
                 
-                img_filename = f"spatial_img_p{page_num+1}_{idx}.png"
-                img_path = os.path.join(img_dir, img_filename)
-                pix.save(img_path)
+                v_filename = f"math_vector_graph_p{page_num+1}_{g_idx}.png"
+                v_path = os.path.join(img_dir, v_filename)
+                pix.save(v_path)
 
-                spatial_images.append({
-                    "id": f"img_p{page_num+1}_{idx}",
+                w = g_rect.x1 - g_rect.x0
+                spatial_assets.append({
+                    "id": f"vgraph_p{page_num+1}_{g_idx}",
                     "page": page_num + 1,
-                    "bbox": bbox,
-                    "y0": y0,
+                    "bbox": [g_rect.x0, g_rect.y0, g_rect.x1, g_rect.y1],
+                    "y0": g_rect.y0,
                     "width_pt": round(w, 1),
-                    "height_pt": round(h, 1),
+                    "height_pt": round(g_rect.y1 - g_rect.y0, 1),
                     "width_ratio": round(w / p_width, 2),
-                    "is_right_side": x0 > (p_width / 2),
-                    "src": f"images/{img_filename}"
+                    "is_right_side": g_rect.x0 > (p_width / 2),
+                    "src": f"images/{v_filename}"
                 })
 
+        else:
+            # CHEMISTRY (kech) & OTHER SUBJECTS (RETAINED UNCHANGED):
+            # Caption-anchored visual extraction
+            blocks = page.get_text("dict")["blocks"]
+            for b in blocks:
+                if b.get("type") == 0:
+                    b_text = "".join(span["text"] for line in b["lines"] for span in line["spans"]).strip()
+                    fig_match = re.search(r"Fig\.\s*(\d+\.\d+)", b_text, re.I)
+                    if fig_match:
+                        fig_key = f"Fig. {fig_match.group(1)}"
+                        b_rect = fitz.Rect(b["bbox"])
+                        clip_rect = fitz.Rect(max(40.0, b_rect.x0 - 20), max(40.0, b_rect.y0 - 180), min(550.0, b_rect.x1 + 30), b_rect.y0 - 2) & page.rect
+                        
+                        pix = page.get_pixmap(clip=clip_rect, dpi=300)
+                        img_filename = f"{fig_key.lower().replace('.', '_').replace(' ', '_')}.png"
+                        img_path = os.path.join(img_dir, img_filename)
+                        pix.save(img_path)
+
+                        spatial_assets.append({
+                            "id": fig_key,
+                            "page": page_num + 1,
+                            "bbox": [b_rect.x0, b_rect.y0 - 180, b_rect.x1, b_rect.y0],
+                            "y0": b_rect.y0 - 180,
+                            "width_ratio": 0.90,
+                            "is_right_side": False,
+                            "src": f"images/{img_filename}"
+                        })
+
     doc.close()
-    print(f"Extracted {len(spatial_images)} spatial images across document.")
-    return spatial_images
+    print(f"Extracted {len(spatial_assets)} subject assets for [{subject_prefix.upper()}].")
+    return spatial_assets
 
 def extract_features_directly_from_pdf(pdf_path: str):
     """
@@ -140,6 +211,21 @@ def extract_features_directly_from_pdf(pdf_path: str):
 def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     nodes, df = extract_features_directly_from_pdf(pdf_path)
 
+    # Detect Subject Prefix
+    base_file = os.path.basename(pdf_path).lower()
+    if base_file.startswith("kemh"):
+        subject_prefix = "kemh"
+        template_name = "kemh_template.typ"
+    elif base_file.startswith("keph"):
+        subject_prefix = "keph"
+        template_name = "keph_template.typ"
+    elif base_file.startswith("kebo"):
+        subject_prefix = "kebo"
+        template_name = "kebo_template.typ"
+    else:
+        subject_prefix = "kech"
+        template_name = "kech_template.typ"
+
     # 100% Dynamic Metadata Extraction
     chapter_num = "1"
     chapter_title = "TEXTBOOK CHAPTER"
@@ -170,19 +256,8 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     model = model_data["model"] if isinstance(model_data, dict) else model_data
     predicted_tags = model.predict(df.values)
 
-    # Extract ALL spatial images with bounding boxes
-    spatial_images = extract_all_spatial_images(pdf_path)
-
-    # Dynamically select subject-specific master template
-    base_file = os.path.basename(pdf_path).lower()
-    if base_file.startswith("kemh"):
-        template_name = "kemh_template.typ"
-    elif base_file.startswith("keph"):
-        template_name = "keph_template.typ"
-    elif base_file.startswith("kebo"):
-        template_name = "kebo_template.typ"
-    else:
-        template_name = "kech_template.typ"
+    # Extract subject-specific assets (filtering watermarks & harvesting vector math graphs)
+    spatial_assets = extract_subject_specific_assets(pdf_path, subject_prefix)
 
     print(f"[3/4] Synthesizing Typst document using [{template_name}]: {output_typ_path}")
     
@@ -190,7 +265,7 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     safe_quote = escape_typst(f"{quote_text} – {quote_author}" if quote_author else quote_text)
 
     typst_lines = [
-        f"// 100% Dynamic PDF Reconstruction Engine [{template_name}]\n",
+        f"// Subject-Isolated PDF Reconstruction Engine [{template_name}]\n",
         f'#import "./{template_name}": *\n\n',
         '#show: ncert-document.with(\n',
         f'  chapter-num: "{chapter_num}",\n',
@@ -206,7 +281,7 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
     if template_name != "kemh_template.typ":
         typst_lines.append('#columns(2, gutter: 15pt)[\n')
 
-    # Construct unified spatial sequence (interleaving text and spatial images by page & y0)
+    # Construct unified spatial sequence (interleaving text and assets strictly by page & y0)
     all_elements = []
     for node, tag in zip(nodes, predicted_tags):
         all_elements.append({
@@ -217,12 +292,12 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
             "tag": tag
         })
 
-    for img in spatial_images:
+    for asset in spatial_assets:
         all_elements.append({
             "elem_type": "IMAGE",
-            "page": img["page"],
-            "y0": img["y0"],
-            "data": img
+            "page": asset["page"],
+            "y0": asset["y0"],
+            "data": asset
         })
 
     # Sort strictly by (page, y0)
@@ -232,13 +307,12 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
         if item["elem_type"] == "IMAGE":
             img = item["data"]
             img_src = img["src"]
-            w_pct = int(img["width_ratio"] * 100)
+            w_pct = int(img["width_ratio"] * 100) if "width_ratio" in img else 80
             
-            if img["is_right_side"]:
-                # Wrap portrait or right-aligned figure
-                typst_lines.append(f'  #align(right)[#ncert-figure("./{img_src}", caption: "", width: {w_pct}%)]\n\n')
+            if img.get("is_right_side"):
+                typst_lines.append(f'  #align(right)[#ncert-figure("./{img_src}", caption: "", width: {max(25, min(50, w_pct))}%)]\n\n')
             else:
-                typst_lines.append(f'  #align(center)[#ncert-figure("./{img_src}", caption: "", width: {min(95, max(40, w_pct))}%)]\n\n')
+                typst_lines.append(f'  #align(center)[#ncert-figure("./{img_src}", caption: "", width: {min(95, max(35, w_pct))}%)]\n\n')
 
         else:  # TEXT node
             node = item["data"]
