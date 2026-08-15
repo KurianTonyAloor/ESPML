@@ -1,7 +1,18 @@
+# Python Cache & Logs
 __pycache__/
 *.pyc
 *.log
 .gemini/
 *.tmp
-page_*_preview.png
-test_template_page_*.png
+
+# Temporary & One-off Preview Images
+*.png
+*.svg
+
+# Analysis, Inspection & Debug Scratch Scripts
+debugging_tools/
+organize_project_structure.py
+organize_json_manifests.py
+
+# Generated Output Documents & Audit Logs
+output/
