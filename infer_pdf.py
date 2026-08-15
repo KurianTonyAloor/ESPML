@@ -165,8 +165,8 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
         raw_text = node["text"]
         safe_text = escape_typst(raw_text)
 
-        # Skip duplicate chapter titles
-        if "RELATIONS AND FUNCTIONS" in raw_text.upper() or "BERTHELOT" in raw_text:
+        # Skip duplicate chapter titles and opening quotes
+        if "RELATIONS AND FUNCTIONS" in raw_text.upper() or "BERTHELOT" in raw_text.upper() or raw_text.startswith("vMathematics"):
             continue
 
         fig_match = re.search(r"Fig\.\s*(\d+\.\d+)", raw_text, re.I)
@@ -176,8 +176,8 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_typ_path: str):
             typst_lines.append(f'  #ncert-h1("{safe_text}")\n\n')
         elif tag == "SECTION_HEADING_2" or re.match(r"^\d+\.\d+\.\d+\s+", raw_text):
             typst_lines.append(f'  #ncert-h2("{safe_text}")\n\n')
-        elif tag == "CALLOUT_BOX" or node["inside_drawing_box"]:
-            typst_lines.append(f'  #ncert-green-box(title: "Definition / Note", [{safe_text}])\n\n')
+        elif re.match(r"^(Definition|Theorem|Note)\s*\d*", raw_text, re.I):
+            typst_lines.append(f'  #ncert-green-box(title: "", [{safe_text}])\n\n')
         elif tag == "EXERCISE_OR_EXAMPLE" or re.match(r"^(Example|EXERCISES)", raw_text, re.I):
             typst_lines.append(f'  #ncert-problem-box(title: "Example", [{safe_text}])\n\n')
         elif fig_match or tag == "FIGURE_CAPTION":

@@ -40,52 +40,77 @@
     first-line-indent: 0pt
   )
 
-  // Single Wide Column Layout (NCERT Math Original)
   body
 }
 
-// Chapter Page 1 Opening Layout (NCERT Math)
+// 1:1 Exact Chapter Opening Header (Matching Right PDF)
 #let ncert-page-one-opening(
   unit-num: "2",
   title: "RELATIONS AND FUNCTIONS",
-  quote-text: "Mathematics is the indispensable instrument of all physical research.",
-  quote-author: "BERTHELOT"
+  quote-text: "Mathematics is the indispensable instrument of all physical research. – BERTHELOT"
 ) = {
+  v(10pt)
+  // Top Header Row: QR Code (Left) + Chapter Box (Right)
   grid(
     columns: (1fr, auto),
     align: (left + horizon, right + horizon),
     [
-      #v(4pt)
-      #text(size: 13pt, weight: "bold", fill: rgb("#c02626"))[Chapter #unit-num]
-    ],
-    [
       #rect(
         stroke: 0.5pt + rgb("#a0a0a0"),
         radius: 2pt,
-        fill: rgb("#fafafa"),
-        inset: (x: 8pt, y: 4pt),
-        align(center)[#text(size: 7.5pt, weight: "bold")[QR CODE\ 11082CH02]]
+        fill: rgb("#ffffff"),
+        inset: (x: 8pt, y: 6pt),
+        align(center)[
+          #text(size: 7.5pt, weight: "bold")[QR CODE]\
+          #text(size: 7pt, fill: rgb("#555555"))[11076CH02]
+        ]
+      )
+    ],
+    [
+      #grid(
+        columns: (auto, auto),
+        gutter: 6pt,
+        align: horizon,
+        text(size: 16pt, weight: "medium", fill: rgb("#777777"))[Chapter],
+        rect(
+          fill: kemh-teal,
+          radius: 2pt,
+          inset: (x: 10pt, y: 8pt),
+          text(size: 18pt, weight: "bold", fill: rgb("#ffffff"))[#unit-num]
+        )
       )
     ]
   )
-  v(6pt)
-  text(size: 22pt, weight: "bold", fill: kemh-teal, hyphenate: false)[#title]
-  v(4pt)
-  line(length: 100%, stroke: 1.8pt + kemh-teal)
-  v(12pt)
 
-  // Opening Quote Box
+  v(16pt)
+
+  // 1:1 Chapter Title Pill / Capsule Banner
   align(center)[
-    #block(width: 85%, inset: 8pt)[
-      #text(size: 10pt, style: "italic", weight: "medium", fill: rgb("#222222"))["#quote-text"]
-      #v(2pt)
-      #align(right)[#text(size: 9pt, weight: "bold", fill: kemh-teal)[— #quote-author]]
+    #rect(
+      width: 100%,
+      radius: 18pt,
+      fill: rgb("#ffffff"),
+      stroke: 2.5pt + rgb("#90a4ae"),
+      inset: (x: 20pt, y: 10pt),
+      align(center)[
+        #text(size: 18pt, weight: "bold", fill: kemh-teal)[#upper(title)]
+      ]
+    )
+  ]
+
+  v(14pt)
+
+  // 1:1 Opening Quote with Cyan Diamonds ❖
+  align(center)[
+    #text(size: 10pt, style: "italic", weight: "bold", fill: kemh-teal)[
+      ❖ #quote-text ❖
     ]
   ]
-  v(10pt)
+
+  v(16pt)
 }
 
-// Math Section Headings
+// Section Headings
 #let ncert-h1(title) = {
   v(14pt)
   text(size: 11.5pt, weight: "bold", fill: kemh-teal)[#title]
@@ -118,10 +143,6 @@
   v(10pt)
 }
 
-#let ncert-full-width-box(title: "", body) = {
-  ncert-green-box(title: title, body)
-}
-
 #let ncert-problem-box(title: "", body) = {
   v(10pt)
   rect(
@@ -139,29 +160,6 @@
     ]
   )
   v(10pt)
-}
-
-#let ncert-table(caption: "", headers: (), rows: (), width: 100%) = {
-  v(8pt)
-  align(center, block(width: width)[
-    #if caption != "" [
-      #align(center, text(weight: "bold", fill: kemh-teal, size: 9pt)[#caption])
-      #v(4pt)
-    ]
-    #table(
-      columns: headers.len(),
-      fill: (x, y) => if y == 0 { rgb("#d1c4e9") } else if calc.even(y) { rgb("#f3e5f5") } else { rgb("#ffffff") },
-      stroke: (x, y) => if y == 0 { 1.2pt + kemh-teal } else { 0.5pt + rgb("#cccccc") },
-      align: center + horizon,
-      table.header(..headers.map(h => text(weight: "bold", size: 8.5pt, fill: kemh-teal)[#h])),
-      ..rows.map(r => if type(r) == array {
-        r.map(cell => text(size: 8pt)[#cell])
-      } else {
-        (text(size: 8pt)[#r],)
-      }).flatten()
-    )
-  ])
-  v(8pt)
 }
 
 #let ncert-figure(img-path, caption: "", width: 95%) = {
