@@ -43,14 +43,13 @@
   body
 }
 
-// 1:1 Exact Chapter Opening Header (Matching Right PDF)
+// 1:1 Chapter Page 1 Opening Header
 #let ncert-page-one-opening(
   unit-num: "2",
   title: "RELATIONS AND FUNCTIONS",
   quote-text: "Mathematics is the indispensable instrument of all physical research. – BERTHELOT"
 ) = {
   v(10pt)
-  // Top Header Row: QR Code (Left) + Chapter Box (Right)
   grid(
     columns: (1fr, auto),
     align: (left + horizon, right + horizon),
@@ -84,7 +83,6 @@
 
   v(16pt)
 
-  // 1:1 Chapter Title Pill / Capsule Banner
   align(center)[
     #rect(
       width: 100%,
@@ -100,7 +98,6 @@
 
   v(14pt)
 
-  // 1:1 Opening Quote with Cyan Diamonds ❖
   align(center)[
     #text(size: 10pt, style: "italic", weight: "bold", fill: kemh-teal)[
       ❖ #quote-text ❖
@@ -121,6 +118,52 @@
   v(10pt)
   text(size: 10.5pt, weight: "bold", fill: kemh-teal)[#title]
   v(4pt)
+}
+
+// 1:1 EXERCISE SECTION MACROS
+#let ncert-exercise-banner(title) = {
+  v(16pt)
+  align(center)[
+    #rect(
+      radius: 4pt,
+      fill: rgb("#e1f5fe"),
+      stroke: 1.5pt + kemh-teal,
+      inset: (x: 22pt, y: 8pt),
+      text(size: 13pt, weight: "bold", fill: kemh-teal)[#upper(title)]
+    )
+  ]
+  v(12pt)
+}
+
+#let ncert-exercise-item(num, body) = {
+  v(8pt)
+  grid(
+    columns: (24pt, 1fr),
+    gutter: 4pt,
+    align: (left + top, left + top),
+    text(size: 10.5pt, weight: "bold", fill: kemh-teal)[#num],
+    text(size: 10.5pt)[#body]
+  )
+}
+
+#let ncert-sub-item(num, body) = {
+  v(4pt)
+  pad(left: 24pt)[
+    grid(
+      columns: (26pt, 1fr),
+      gutter: 4pt,
+      align: (left + top, left + top),
+      text(size: 10pt, weight: "bold", fill: kemh-teal)[#num],
+      text(size: 10pt)[#body]
+    )
+  ]
+}
+
+#let ncert-solution(body) = {
+  v(6pt)
+  text(size: 10.5pt, weight: "bold", fill: kemh-teal)[Solution ]
+  text(size: 10.5pt)[#body]
+  v(6pt)
 }
 
 // Math Definition / Theorem Box

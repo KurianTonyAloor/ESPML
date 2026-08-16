@@ -372,7 +372,26 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
             if chapter_title.lower() in raw_text.lower() or (quote_author and quote_author.lower() in raw_text.lower()) or raw_text.startswith("vMathematics"):
                 continue
 
-            if tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+", raw_text):
+            # 1:1 EXERCISE SECTION PARSER
+            ex_banner_m = re.match(r"^EXERCISE\s*(\d+\.\d+)", raw_text, re.I)
+            ex_item_m = re.match(r"^(\d+)\.\s*(.*)", raw_text)
+            sub_item_m = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", raw_text, re.I)
+            sol_m = re.match(r"^Solution\s*(.*)", raw_text, re.I)
+
+            if ex_banner_m:
+                typst_lines.append(f'  #ncert-exercise-banner("EXERCISE {ex_banner_m.group(1)}")\n\n')
+            elif ex_item_m:
+                q_num = ex_item_m.group(1) + "."
+                q_body = escape_typst(ex_item_m.group(2))
+                typst_lines.append(f'  #ncert-exercise-item("{q_num}", [{q_body}])\n\n')
+            elif sub_item_m:
+                sub_num = f"({sub_item_m.group(1)})"
+                sub_body = escape_typst(sub_item_m.group(2))
+                typst_lines.append(f'  #ncert-sub-item("{sub_num}", [{sub_body}])\n\n')
+            elif sol_m:
+                sol_body = escape_typst(sol_m.group(1))
+                typst_lines.append(f'  #ncert-solution([{sol_body}])\n\n')
+            elif tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+", raw_text):
                 typst_lines.append(f'  #ncert-h1("{safe_text}")\n\n')
             elif tag == "SECTION_HEADING_2" or re.match(r"^\d+\.\d+\.\d+\s+", raw_text):
                 typst_lines.append(f'  #ncert-h2("{safe_text}")\n\n')
