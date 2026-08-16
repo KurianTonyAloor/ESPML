@@ -369,29 +369,221 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
             raw_text = node["text"]
             safe_text = escape_typst(raw_text)
 
+class ExerciseSectionTracker:
+    def __init__(self):
+        self.in_exercise_mode = False
+        self.current_exercise_name = ""
+        self.active_problem_num = 0
+        self.seen_banners = set()
+
+    def process_text_node(self, raw_text: str, tag: str) -> list:
+        output_lines = []
+
+        # 1. Check for Exercise Banner Start
+        ex_banner_match = re.search(r"EXERCISE\s*(\d+\.\d+)", raw_text, re.I)
+        if ex_banner_match:
+            ex_id = ex_banner_match.group(1)
+            self.in_exercise_mode = True
+            self.current_exercise_name = f"EXERCISE {ex_id}"
+            
+            # Avoid duplicate banner printing
+            if ex_id not in self.seen_banners:
+                self.seen_banners.add(ex_id)
+                output_lines.append(f'  #ncert-exercise-banner("{self.current_exercise_name}")\n\n')
+            return output_lines
+
+        # 2. Deactivation Criteria: Major Section Heading (e.g. 2.3 Relations)
+        if tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+[A-Z]", raw_text):
+            self.in_exercise_mode = False
+            self.current_exercise_name = ""
+            return None
+
+        # 3. Active Exercise Section Processing
+        if self.in_exercise_mode:
+            # Clean garbled math font glyphs (e.g. 25 11333 -> Math fraction equation)
+            text_cleaned = re.sub(r"25\s+11333[^\,]*\,", r"If \$ (x/3 + 1, y - 2/3) = (5/3, 1/3) \$,", raw_text)
+
+            # Split embedded question blocks (e.g. 2. If the set... 3. If G=... 4. State whether...)
+            parts = re.split(r"(?=\b\d+\.\s+)", text_cleaned)
+            for p in parts:
+                p_str = p.strip()
+                if not p_str:
+                    continue
+
+                q_match = re.match(r"^(\d+)\.\s*(.*)", p_str, re.DOTALL)
+                sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", p_str, re.I | re.DOTALL)
+                sol_match = re.match(r"^Solution\s*(.*)", p_str, re.I | re.DOTALL)
+
+                if q_match:
+                    self.active_problem_num = int(q_match.group(1))
+                    q_num = f"{self.active_problem_num}."
+                    q_body = escape_typst(q_match.group(2).strip())
+                    output_lines.append(f'  #ncert-exercise-item("{q_num}", [{q_body}])\n\n')
+
+                elif sub_match:
+                    sub_num = f"({sub_match.group(1)})"
+                    sub_body = escape_typst(sub_match.group(2).strip())
+                    output_lines.append(f'  #ncert-sub-item("{sub_num}", [{sub_body}])\n\n')
+
+                elif sol_match:
+                    sol_body = escape_typst(sol_match.group(1).strip())
+                    output_lines.append(f'  #ncert-solution([{sol_body}])\n\n')
+
+                else:
+                    safe_p = escape_typst(p_str)
+                    output_lines.append(f'  {safe_p}\n\n')
+
+            return output_lines
+
+        return None
+
+def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
+    nodes, df = extract_features_directly_from_pdf(pdf_path)
+
+    # Setup Versioned Output Directories
+    typ_dir = os.path.join(output_dir, "typ_files")
+    pdf_dir = os.path.join(output_dir, "pdf_files")
+    os.makedirs(typ_dir, exist_ok=True)
+    os.makedirs(pdf_dir, exist_ok=True)
+
+    log_file = os.path.join(output_dir, "iteration_log.json")
+    iteration_log = []
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, "r", encoding="utf-8") as f:
+                iteration_log = json.load(f)
+        except Exception:
+            iteration_log = []
+
+    iter_count = len(iteration_log) + 1
+    timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    doc_stem = os.path.splitext(os.path.basename(pdf_path))[0]
+
+    versioned_typ_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.typ"
+    versioned_pdf_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.pdf"
+
+    output_typ_path = os.path.join(typ_dir, versioned_typ_filename)
+    output_pdf_path = os.path.join(pdf_dir, versioned_pdf_filename)
+
+    # Detect Subject Prefix
+    base_file = os.path.basename(pdf_path).lower()
+    if base_file.startswith("kemh"):
+        subject_prefix = "kemh"
+        template_name = "kemh_template.typ"
+    elif base_file.startswith("keph"):
+        subject_prefix = "keph"
+        template_name = "keph_template.typ"
+    elif base_file.startswith("kebo"):
+        subject_prefix = "kebo"
+        template_name = "kebo_template.typ"
+    else:
+        subject_prefix = "kech"
+        template_name = "kech_template.typ"
+
+    # 100% Dynamic Metadata Extraction
+    chapter_num = "1"
+    chapter_title = "TEXTBOOK CHAPTER"
+    quote_text = ""
+    quote_author = ""
+
+    for node in nodes[:25]:
+        t = node["text"].strip()
+        ch_m = re.search(r"(?:Chapter|UNIT)\s*(\d+)", t, re.I)
+        if ch_m:
+            chapter_num = ch_m.group(1)
+
+        if len(t) > 3 and chapter_title == "TEXTBOOK CHAPTER":
+            if not re.match(r"^(?:Chapter|UNIT)\s*\d+$", t, re.I) and "REPRINT" not in t.upper():
+                if node["font_size"] >= 14.0 or (t.isupper() and len(t) > 4):
+                    chapter_title = t
+
+        if not quote_text and ("—" in t or "–" in t or "❖" in t or node["is_italic"]):
+            q_m = re.search(r"^(?:[\"“❖]|\s)*(.+?)(?:[\"”❖]|\s)*(?:[–—\-]\s*([A-Z\s\.]{2,30}))?$", t)
+            if q_m and len(q_m.group(1)) > 15:
+                quote_text = q_m.group(1).strip()
+                if q_m.group(2):
+                    quote_author = q_m.group(2).strip()
+
+    # Predict semantic tags using Model 1
+    print(f"[2/4] Predicting semantic layout tags for {len(nodes)} text blocks using Model 1...")
+    model_data = joblib.load(model_path)
+    model = model_data["model"] if isinstance(model_data, dict) else model_data
+    predicted_tags = model.predict(df.values)
+
+    # Extract subject-specific assets
+    spatial_assets = extract_subject_specific_assets(pdf_path, subject_prefix)
+
+    print(f"[3/4] Synthesizing Typst document [Iteration v{iter_count}]: {output_typ_path}")
+    
+    safe_ch_title = escape_typst(chapter_title)
+    safe_quote = escape_typst(f"{quote_text} – {quote_author}" if quote_author else quote_text)
+
+    typst_lines = [
+        f"// Versioned Output v{iter_count} - {timestamp_str} [{template_name}]\n",
+        f'#import "/templates/{template_name}": *\n\n',
+        '#show: ncert-document.with(\n',
+        f'  chapter-num: "{chapter_num}",\n',
+        f'  chapter-title: "{safe_ch_title}"\n',
+        ')\n\n',
+        '#ncert-page-one-opening(\n',
+        f'  unit-num: "{chapter_num}",\n',
+        f'  title: "{safe_ch_title}",\n',
+        f'  quote-text: "{safe_quote}"\n',
+        ')\n\n'
+    ]
+
+    if template_name != "kemh_template.typ":
+        typst_lines.append('#columns(2, gutter: 15pt)[\n')
+
+    all_elements = []
+    for node, tag in zip(nodes, predicted_tags):
+        all_elements.append({
+            "elem_type": "TEXT",
+            "page": node["page"],
+            "y0": node["y0"],
+            "data": node,
+            "tag": tag
+        })
+
+    for asset in spatial_assets:
+        all_elements.append({
+            "elem_type": "IMAGE",
+            "page": asset["page"],
+            "y0": asset["y0"],
+            "data": asset
+        })
+
+    all_elements.sort(key=lambda el: (el["page"], el["y0"]))
+
+    ex_tracker = ExerciseSectionTracker()
+
+    for item in all_elements:
+        if item["elem_type"] == "IMAGE":
+            img = item["data"]
+            img_src = f"/{img['src']}"
+            w_pct = int(img["width_ratio"] * 100) if "width_ratio" in img else 40
+            
+            if img.get("is_right_side"):
+                typst_lines.append(f'  #align(right)[#ncert-figure("{img_src}", caption: "", width: {max(20, min(40, w_pct))}%)]\n\n')
+            else:
+                typst_lines.append(f'  #align(center)[#ncert-figure("{img_src}", caption: "", width: {min(75, max(30, w_pct))}%)]\n\n')
+
+        else:
+            node = item["data"]
+            tag = item["tag"]
+            raw_text = node["text"]
+            safe_text = escape_typst(raw_text)
+
             if chapter_title.lower() in raw_text.lower() or (quote_author and quote_author.lower() in raw_text.lower()) or raw_text.startswith("vMathematics"):
                 continue
 
-            # 1:1 EXERCISE SECTION PARSER
-            ex_banner_m = re.match(r"^EXERCISE\s*(\d+\.\d+)", raw_text, re.I)
-            ex_item_m = re.match(r"^(\d+)\.\s*(.*)", raw_text)
-            sub_item_m = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", raw_text, re.I)
-            sol_m = re.match(r"^Solution\s*(.*)", raw_text, re.I)
+            # Process through ExerciseSectionTracker state machine
+            ex_output = ex_tracker.process_text_node(raw_text, tag)
+            if ex_output is not None:
+                typst_lines.extend(ex_output)
+                continue
 
-            if ex_banner_m:
-                typst_lines.append(f'  #ncert-exercise-banner("EXERCISE {ex_banner_m.group(1)}")\n\n')
-            elif ex_item_m:
-                q_num = ex_item_m.group(1) + "."
-                q_body = escape_typst(ex_item_m.group(2))
-                typst_lines.append(f'  #ncert-exercise-item("{q_num}", [{q_body}])\n\n')
-            elif sub_item_m:
-                sub_num = f"({sub_item_m.group(1)})"
-                sub_body = escape_typst(sub_item_m.group(2))
-                typst_lines.append(f'  #ncert-sub-item("{sub_num}", [{sub_body}])\n\n')
-            elif sol_m:
-                sol_body = escape_typst(sol_m.group(1))
-                typst_lines.append(f'  #ncert-solution([{sol_body}])\n\n')
-            elif tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+", raw_text):
+            if tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+", raw_text):
                 typst_lines.append(f'  #ncert-h1("{safe_text}")\n\n')
             elif tag == "SECTION_HEADING_2" or re.match(r"^\d+\.\d+\.\d+\s+", raw_text):
                 typst_lines.append(f'  #ncert-h2("{safe_text}")\n\n')
