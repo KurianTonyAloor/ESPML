@@ -40,6 +40,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
 
         if subject_prefix == "kemh":
             # 1. MATHEMATICS: Extract Real Isolated Raster Images (Strict AreaRatio <= 20.0%, w <= 260pt, h <= 280pt)
+            # EXCLUDE PAGE 1 HEADER GRAPHICS (y0 < 200pt) like QR codes and Chapter squares which are managed by #ncert-page-one-opening
             img_info = page.get_image_info()
             for idx, info in enumerate(img_info):
                 bbox = [round(v, 1) for v in info["bbox"]]
@@ -49,7 +50,11 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 area = w * h
                 area_ratio = area / p_area
 
-                # STRICT ISOLATED FIGURE FILTER (Filters out all canvas/watermark overlays > 20% area or > 260pt width)
+                # Filter out Page 1 header graphics (y0 < 200pt)
+                if page_num == 0 and y0 < 200.0:
+                    continue
+
+                # STRICT ISOLATED FIGURE FILTER
                 if w > 25 and h > 25 and w <= 260 and h <= 280 and area_ratio <= 0.20 and x0 >= 0 and y0 >= 0:
                     clip_rect = fitz.Rect(max(0, x0 - 2), max(0, y0 - 2), min(p_width, x1 + 2), min(p_height, y1 + 2))
                     pix = page.get_pixmap(clip=clip_rect, dpi=300)
@@ -78,6 +83,10 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 w = r.x1 - r.x0
                 h = r.y1 - r.y0
                 area_ratio = (w * h) / p_area
+
+                # Filter out Page 1 header graphics (y0 < 200pt)
+                if page_num == 0 and r.y0 < 200.0:
+                    continue
                 
                 if w > 20 and h > 20 and w <= 260 and h <= 260 and area_ratio <= 0.18 and r.x0 >= 20 and r.y0 >= 40:
                     is_dup = False
