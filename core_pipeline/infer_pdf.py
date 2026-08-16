@@ -75,9 +75,9 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                         "src": f"images/{img_filename}"
                     })
 
-            # 2. MATHEMATICS: Harvest Isolated Vector Math Graphs (Venn Diagrams, Set Circles, Coordinate Graphs)
+            # 2. MATHEMATICS: Harvest & Merge Composite Vector Math Graphs (Venn Diagrams, Set Circles, Arrow Diagrams)
             drawings = page.get_drawings()
-            graph_clusters = []
+            raw_rects = []
             for d in drawings:
                 r = d["rect"]
                 w = r.x1 - r.x0
@@ -88,17 +88,30 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 if page_num == 0 and r.y0 < 200.0:
                     continue
                 
-                if w > 20 and h > 20 and w <= 260 and h <= 260 and area_ratio <= 0.18 and r.x0 >= 20 and r.y0 >= 40:
-                    is_dup = False
-                    for existing in graph_clusters:
-                        if abs(r.x0 - existing.x0) < 15 and abs(r.y0 - existing.y0) < 15:
-                            is_dup = True
-                            break
-                    if not is_dup:
-                        graph_clusters.append(r)
+                if w > 15 and h > 15 and w <= 380 and h <= 380 and area_ratio <= 0.25 and r.x0 >= 20 and r.y0 >= 40:
+                    raw_rects.append(r)
 
-            for g_idx, g_rect in enumerate(graph_clusters):
-                clip_rect = fitz.Rect(max(0, g_rect.x0 - 3), max(0, g_rect.y0 - 3), min(p_width, g_rect.x1 + 3), min(p_height, g_rect.y1 + 3))
+            # COMPOSITE BOUNDING BOX MERGER: Merges shapes at same vertical level (y0 gap < 25pt) into ONE unified diagram image
+            merged_clusters = []
+            for r in raw_rects:
+                merged = False
+                for i, m_rect in enumerate(merged_clusters):
+                    # Check vertical alignment and horizontal proximity (gap < 80pt)
+                    if abs(r.y0 - m_rect.y0) < 25.0 and r.x0 < (m_rect.x1 + 90.0) and r.x1 > (m_rect.x0 - 90.0):
+                        merged_clusters[i] = fitz.Rect(
+                            min(m_rect.x0, r.x0),
+                            min(m_rect.y0, r.y0),
+                            max(m_rect.x1, r.x1),
+                            max(m_rect.y1, r.y1)
+                        )
+                        merged = True
+                        break
+                if not merged:
+                    merged_clusters.append(r)
+
+            for g_idx, g_rect in enumerate(merged_clusters):
+                # Include surrounding text labels (e.g. 'P', 'Q', 'Fig 2.4') by expanding clip box slightly
+                clip_rect = fitz.Rect(max(0, g_rect.x0 - 6), max(0, g_rect.y0 - 6), min(p_width, g_rect.x1 + 6), min(p_height, g_rect.y1 + 6))
                 pix = page.get_pixmap(clip=clip_rect, dpi=300)
                 
                 v_filename = f"math_vector_graph_p{page_num+1}_{g_idx}.png"
@@ -114,7 +127,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                     "width_pt": round(w, 1),
                     "height_pt": round(g_rect.y1 - g_rect.y0, 1),
                     "width_ratio": round(w / p_width, 2),
-                    "is_right_side": g_rect.x0 > (p_width / 2),
+                    "is_right_side": g_rect.x0 > (p_width * 0.60),
                     "src": f"images/{v_filename}"
                 })
 
