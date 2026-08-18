@@ -411,6 +411,7 @@ class ExerciseSectionTracker:
         self.current_exercise_name = ""
         self.active_problem_num = 0
         self.seen_banners = set()
+        self.q1_emitted = False
 
     def process_text_node(self, raw_text: str, tag: str) -> list:
         output_lines = []
@@ -436,35 +437,51 @@ class ExerciseSectionTracker:
 
         # 3. Active Exercise Section Processing
         if self.in_exercise_mode:
-            # Clean garbled math font glyphs (e.g. 25 11333 / If'S -> Math fraction equation for Q1)
-            if "find the values of x and y" in raw_text.lower() or "25 11333" in raw_text or "if's" in raw_text.lower():
-                output_lines.append('  #ncert-exercise-item("1.", [If $ (x/3 + 1, y - 2/3) = (5/3, 1/3) $, find the values of $x$ and $y$.])\n\n')
+            # Question 1 Handler: Clean garbled math font glyphs & emit EXACTLY ONCE
+            if ("find the values of x and y" in raw_text.lower() or "25 11333" in raw_text or raw_text.strip() == "1.If") and not self.q1_emitted:
+                if "find the values" in raw_text.lower() or "25 11333" in raw_text:
+                    self.q1_emitted = True
+                    output_lines.append('  #ncert-exercise-item("1.", [If $ (x/3 + 1, y - 2/3) = (5/3, 1/3) $, find the values of $x$ and $y$.])\n\n')
+                return output_lines
+            elif raw_text.strip() == "1.If" and self.q1_emitted:
                 return output_lines
 
-            # Split embedded question blocks (e.g. 2. If the set... 3. If G=... 4. State whether...)
-            parts = re.split(r"(?=(?:^|\s)\d+\.\s+)", raw_text)
+            # Split embedded question blocks matching both "2. If" AND no-space "3.If", "4.State", "5.If", "6.If", "7.Let", "8.Let", "9.Let"
+            parts = re.split(r"(?=(?:^|\s|\.)\b\d+\.\s*|\b\d+\.[A-Z])", raw_text)
             for p in parts:
                 p_str = p.strip()
                 if not p_str or "EXERCISE" in p_str:
                     continue
 
+                # Match question numbers with or without trailing space (e.g. "2. If..." or "3.If...")
                 q_match = re.match(r"^(\d+)\.\s*(.*)", p_str, re.DOTALL)
+                if not q_match:
+                    q_match = re.match(r"^(\d+)\.([A-Z].*)", p_str, re.DOTALL)
+
                 if q_match:
                     self.active_problem_num = int(q_match.group(1))
                     q_num = f"{self.active_problem_num}."
                     q_body_raw = q_match.group(2).strip()
 
+                    # Skip duplicate Question 1
+                    if self.active_problem_num == 1 and self.q1_emitted:
+                        continue
+
                     # Check if sub-items (i), (ii), (iii) are embedded inside q_body_raw
-                    sub_parts = re.split(r"(?=(?:^|\s)\((?:i|v|x|\d+)+\)\s+)", q_body_raw, flags=re.I)
+                    sub_parts = re.split(r"(?=(?:^|\s)\((?:i|v|x|\d+)+\)\s*|\b\((?:i|v|x|\d+)+\)[A-Z])", q_body_raw, flags=re.I)
                     
                     # Main question intro text
                     main_text = escape_typst(sub_parts[0].strip())
-                    output_lines.append(f'  #ncert-exercise-item("{q_num}", [{main_text}])\n\n')
+                    if main_text:
+                        output_lines.append(f'  #ncert-exercise-item("{q_num}", [{main_text}])\n\n')
 
                     # Process any embedded sub-items
                     for sub_p in sub_parts[1:]:
                         sub_str = sub_p.strip()
                         sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", sub_str, re.I | re.DOTALL)
+                        if not sub_match:
+                            sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)([A-Z].*)", sub_str, re.I | re.DOTALL)
+
                         if sub_match:
                             sub_num = f"({sub_match.group(1)})"
                             sub_body = escape_typst(sub_match.group(2).strip())
@@ -476,6 +493,9 @@ class ExerciseSectionTracker:
                 else:
                     # Check standalone sub-item (i), (ii), (iii)
                     sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", p_str, re.I | re.DOTALL)
+                    if not sub_match:
+                        sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)([A-Z].*)", p_str, re.I | re.DOTALL)
+
                     sol_match = re.match(r"^Solution\s*(.*)", p_str, re.I | re.DOTALL)
 
                     if sub_match:
