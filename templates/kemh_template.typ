@@ -1,15 +1,18 @@
 // ==============================================================================
-// 1:1 EXACT NCERT MATHEMATICS MASTER TYPST TEMPLATE (kemh_template.typ)
+// MASTER TYPST TEMPLATE FOR MATHEMATICS (Automated Subject Generator)
 // ==============================================================================
 
-#let kemh-teal = rgb("#00adef")          // Primary Math Accent Teal (#00adef)
-#let kemh-def-bg = rgb("#c6eafb")        // Light Cyan Shaded Definition Box (#c6eafb)
-#let kemh-def-border = rgb("#0097a7")    // Dark Teal Border
-#let kemh-text-color = rgb("#131212")
+#let brand-primary = rgb("#00adef")
+#let brand-callout-bg = rgb("#c6eafb")
+#let brand-callout-border = rgb("#0097a7")
+#let brand-problem-bg = rgb("#f5f5f5")
+#let brand-problem-border = rgb("#00adef")
+#let brand-table-header = rgb("#b2ebf2")
+#let brand-table-row-even = rgb("#e0f7fa")
 
 #let ncert-document(
-  chapter-num: "2",
-  chapter-title: "RELATIONS AND FUNCTIONS",
+  chapter-num: "1",
+  chapter-title: "",
   body
 ) = {
   set page(
@@ -21,7 +24,7 @@
         if calc.even(page-num) {
           text(size: 8.5pt, fill: rgb("#4a4a4a"))[#page-num #h(1fr) *MATHEMATICS*]
         } else {
-          text(size: 8.5pt, fill: rgb("#4a4a4a"))[*RELATIONS AND FUNCTIONS* #h(1fr) #page-num]
+          text(size: 8.5pt, fill: rgb("#4a4a4a"))[*#upper(chapter-title)* #h(1fr) #page-num]
         }
       }
     },
@@ -31,7 +34,7 @@
   set text(
     font: ("Times New Roman", "Liberation Serif", "DejaVu Serif"),
     size: 10.5pt,
-    fill: kemh-text-color
+    fill: rgb("#131212")
   )
 
   set par(
@@ -42,6 +45,7 @@
 
   body
 }
+
 
 // 1:1 Chapter Page 1 Opening Header
 #let ncert-page-one-opening(
@@ -60,8 +64,7 @@
         fill: rgb("#ffffff"),
         inset: (x: 8pt, y: 6pt),
         align(center)[
-          #text(size: 7.5pt, weight: "bold")[QR CODE]\
-          #text(size: 7pt, fill: rgb("#555555"))[11076CH02]
+          #text(size: 7.5pt, weight: "bold")[QR CODE]          #text(size: 7pt, fill: rgb("#555555"))[11076CH02]
         ]
       )
     ],
@@ -72,7 +75,7 @@
         align: horizon,
         text(size: 16pt, weight: "medium", fill: rgb("#777777"))[Chapter],
         rect(
-          fill: kemh-teal,
+          fill: brand-primary,
           radius: 2pt,
           inset: (x: 10pt, y: 8pt),
           text(size: 18pt, weight: "bold", fill: rgb("#ffffff"))[#unit-num]
@@ -91,7 +94,7 @@
       stroke: 2.5pt + rgb("#90a4ae"),
       inset: (x: 20pt, y: 10pt),
       align(center)[
-        #text(size: 18pt, weight: "bold", fill: kemh-teal)[#upper(title)]
+        #text(size: 18pt, weight: "bold", fill: brand-primary)[#upper(title)]
       ]
     )
   ]
@@ -99,7 +102,7 @@
   v(14pt)
 
   align(center)[
-    #text(size: 10pt, style: "italic", weight: "bold", fill: kemh-teal)[
+    #text(size: 10pt, style: "italic", weight: "bold", fill: brand-primary)[
       ❖ #quote-text ❖
     ]
   ]
@@ -107,29 +110,30 @@
   v(16pt)
 }
 
+
 // Section Headings
 #let ncert-h1(title) = {
   v(14pt)
-  text(size: 11.5pt, weight: "bold", fill: kemh-teal)[#title]
+  text(size: 11.5pt, weight: "bold", fill: brand-primary)[#title]
   v(6pt)
 }
 
 #let ncert-h2(title) = {
   v(10pt)
-  text(size: 10.5pt, weight: "bold", fill: kemh-teal)[#title]
+  text(size: 10.5pt, weight: "bold", fill: brand-primary)[#title]
   v(4pt)
 }
 
-// 1:1 EXERCISE SECTION MACROS
+// 1:1 PLUGABLE EXERCISE SECTION MACROS
 #let ncert-exercise-banner(title) = {
   v(16pt)
   align(center)[
     #rect(
       radius: 4pt,
       fill: rgb("#e1f5fe"),
-      stroke: 1.5pt + kemh-teal,
+      stroke: 1.5pt + brand-primary,
       inset: (x: 22pt, y: 8pt),
-      text(size: 13pt, weight: "bold", fill: kemh-teal)[#upper(title)]
+      text(size: 13pt, weight: "bold", fill: brand-primary)[#upper(title)]
     )
   ]
   v(12pt)
@@ -141,7 +145,7 @@
     columns: (24pt, 1fr),
     gutter: 4pt,
     align: (left + top, left + top),
-    text(size: 10.5pt, weight: "bold", fill: kemh-teal)[#num],
+    text(size: 10.5pt, weight: "bold", fill: brand-primary)[#num],
     text(size: 10.5pt)[#body]
   )
 }
@@ -153,7 +157,7 @@
       columns: (26pt, 1fr),
       gutter: 4pt,
       align: (left + top, left + top),
-      text(size: 10pt, weight: "bold", fill: kemh-teal)[#num],
+      text(size: 10pt, weight: "bold", fill: brand-primary)[#num],
       text(size: 10pt)[#body]
     )
   ]
@@ -161,23 +165,23 @@
 
 #let ncert-solution(body) = {
   v(6pt)
-  text(size: 10.5pt, weight: "bold", fill: kemh-teal)[Solution ]
+  text(size: 10.5pt, weight: "bold", fill: brand-primary)[Solution ]
   text(size: 10.5pt)[#body]
   v(6pt)
 }
 
-// Math Definition / Theorem Box
+// Callout & Problem Boxes
 #let ncert-green-box(title: "", body) = {
   v(10pt)
   rect(
     width: 100%,
-    fill: kemh-def-bg,
-    stroke: 1pt + kemh-def-border,
+    fill: brand-callout-bg,
+    stroke: 1pt + brand-callout-border,
     inset: 10pt,
     radius: 3pt,
     [
       #if title != "" [
-        #text(size: 10pt, weight: "bold", fill: kemh-teal)[#title]
+        #text(size: 10pt, weight: "bold", fill: brand-primary)[#title]
         #v(4pt)
       ]
       #text(size: 10pt)[#body]
@@ -190,19 +194,42 @@
   v(10pt)
   rect(
     width: 100%,
-    fill: rgb("#f5f5f5"),
-    stroke: (left: 2.5pt + kemh-teal, rest: 0.5pt + rgb("#dddddd")),
+    fill: brand-problem-bg,
+    stroke: (left: 2.5pt + brand-primary, rest: 0.5pt + rgb("#dddddd")),
     inset: 10pt,
     radius: (right: 3pt),
     [
       #if title != "" [
-        #text(size: 10pt, weight: "bold", fill: kemh-teal)[#title]
+        #text(size: 10pt, weight: "bold", fill: brand-primary)[#title]
         #v(4pt)
       ]
       #text(size: 10pt)[#body]
     ]
   )
   v(10pt)
+}
+
+#let ncert-table(caption: "", headers: (), rows: (), width: 100%) = {
+  v(8pt)
+  align(center, block(width: width)[
+    #if caption != "" [
+      #align(center, text(weight: "bold", fill: brand-primary, size: 9pt)[#caption])
+      #v(4pt)
+    ]
+    #table(
+      columns: headers.len(),
+      fill: (x, y) => if y == 0 { brand-table-header } else if calc.even(y) { brand-table-row-even } else { rgb("#ffffff") },
+      stroke: (x, y) => if y == 0 { 1.2pt + brand-primary } else { 0.5pt + rgb("#cccccc") },
+      align: center + horizon,
+      table.header(..headers.map(h => text(weight: "bold", size: 8.5pt, fill: brand-primary)[#h])),
+      ..rows.map(r => if type(r) == array {
+        r.map(cell => text(size: 8pt)[#cell])
+      } else {
+        (text(size: 8pt)[#r],)
+      }).flatten()
+    )
+  ])
+  v(8pt)
 }
 
 #let ncert-figure(img-path, caption: "", width: 95%) = {

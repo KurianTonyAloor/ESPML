@@ -17,14 +17,14 @@
 ) = {
   set page(
     paper: "a4",
-    margin: (top: 2.2cm, bottom: 2.2cm, left: 1.8cm, right: 1.8cm),
+    margin: (top: 2.2cm, bottom: 2.2cm, left: 2.2cm, right: 2.2cm),
     header: context {
       let page-num = counter(page).get().first()
       if page-num > 1 {
         if calc.even(page-num) {
-          text(size: 9pt, fill: rgb("#4a4a4a"))[#page-num #h(1fr) *BIOLOGY*]
+          text(size: 8.5pt, fill: rgb("#4a4a4a"))[#page-num #h(1fr) *BIOLOGY*]
         } else {
-          text(size: 9pt, fill: rgb("#4a4a4a"))[*#upper(chapter-title)* #h(1fr) #page-num]
+          text(size: 8.5pt, fill: rgb("#4a4a4a"))[*#upper(chapter-title)* #h(1fr) #page-num]
         }
       }
     },
@@ -33,22 +33,24 @@
 
   set text(
     font: ("Times New Roman", "Liberation Serif", "DejaVu Serif"),
-    size: 10pt,
-    fill: rgb("#111111")
+    size: 10.5pt,
+    fill: rgb("#131212")
   )
 
   set par(
     justify: true,
-    leading: 0.65em,
+    leading: 0.68em,
     first-line-indent: 0pt
   )
 
   body
 }
 
+
 #let ncert-page-one-opening(
   unit-num: "1",
-  title: ""
+  title: "",
+  quote-text: ""
 ) = {
   grid(
     columns: (1fr, auto),
@@ -74,18 +76,67 @@
   v(10pt)
 }
 
+
+// Section Headings
 #let ncert-h1(title) = {
   v(14pt)
-  text(size: 11pt, weight: "bold", fill: brand-primary)[#upper(title)]
+  text(size: 11.5pt, weight: "bold", fill: brand-primary)[#title]
   v(6pt)
 }
 
 #let ncert-h2(title) = {
   v(10pt)
-  text(size: 10pt, weight: "bold", fill: brand-primary)[#upper(title)]
+  text(size: 10.5pt, weight: "bold", fill: brand-primary)[#title]
   v(4pt)
 }
 
+// 1:1 PLUGABLE EXERCISE SECTION MACROS
+#let ncert-exercise-banner(title) = {
+  v(16pt)
+  align(center)[
+    #rect(
+      radius: 4pt,
+      fill: rgb("#e1f5fe"),
+      stroke: 1.5pt + brand-primary,
+      inset: (x: 22pt, y: 8pt),
+      text(size: 13pt, weight: "bold", fill: brand-primary)[#upper(title)]
+    )
+  ]
+  v(12pt)
+}
+
+#let ncert-exercise-item(num, body) = {
+  v(8pt)
+  grid(
+    columns: (24pt, 1fr),
+    gutter: 4pt,
+    align: (left + top, left + top),
+    text(size: 10.5pt, weight: "bold", fill: brand-primary)[#num],
+    text(size: 10.5pt)[#body]
+  )
+}
+
+#let ncert-sub-item(num, body) = {
+  v(4pt)
+  pad(left: 24pt)[
+    grid(
+      columns: (26pt, 1fr),
+      gutter: 4pt,
+      align: (left + top, left + top),
+      text(size: 10pt, weight: "bold", fill: brand-primary)[#num],
+      text(size: 10pt)[#body]
+    )
+  ]
+}
+
+#let ncert-solution(body) = {
+  v(6pt)
+  text(size: 10.5pt, weight: "bold", fill: brand-primary)[Solution ]
+  text(size: 10.5pt)[#body]
+  v(6pt)
+}
+
+// Callout & Problem Boxes
 #let ncert-green-box(title: "", body) = {
   v(10pt)
   rect(
@@ -99,14 +150,10 @@
         #text(size: 10pt, weight: "bold", fill: brand-primary)[#title]
         #v(4pt)
       ]
-      #text(size: 9.5pt)[#body]
+      #text(size: 10pt)[#body]
     ]
   )
   v(10pt)
-}
-
-#let ncert-full-width-box(title: "", body) = {
-  ncert-green-box(title: title, body)
 }
 
 #let ncert-problem-box(title: "", body) = {
@@ -114,15 +161,15 @@
   rect(
     width: 100%,
     fill: brand-problem-bg,
-    stroke: 1pt + brand-problem-border,
+    stroke: (left: 2.5pt + brand-primary, rest: 0.5pt + rgb("#dddddd")),
     inset: 10pt,
-    radius: 3pt,
+    radius: (right: 3pt),
     [
       #if title != "" [
         #text(size: 10pt, weight: "bold", fill: brand-primary)[#title]
         #v(4pt)
       ]
-      #text(size: 9.5pt)[#body]
+      #text(size: 10pt)[#body]
     ]
   )
   v(10pt)

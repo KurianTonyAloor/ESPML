@@ -1,19 +1,17 @@
 import os
 import json
-import pymupdf as fitz
-import joblib
 
-# Subject Brand Token Definitions
+# Subject Brand Token Definitions & Design Tokens
 SUBJECT_TOKENS = {
     "MATHEMATICS": {
         "prefix": "kemh",
-        "primary_color": "#2e3092",      # Deep Navy/Purple Blue
-        "callout_bg": "#f0f2fb",         # Soft Blue Tint
-        "callout_border": "#5c6bc0",     # Indigo Border
-        "problem_bg": "#eef2f8",         # Soft Slate
-        "problem_border": "#3f51b5",
-        "table_header": "#d1c4e9",       # Soft Purple Header
-        "table_row_even": "#f3e5f5"
+        "primary_color": "#00adef",      # Royal Teal (#00adef)
+        "callout_bg": "#c6eafb",         # Light Cyan Shaded Definition Box
+        "callout_border": "#0097a7",     # Dark Teal Border
+        "problem_bg": "#f5f5f5",         # Soft Gray Example BG
+        "problem_border": "#00adef",
+        "table_header": "#b2ebf2",       # Light Cyan Header
+        "table_row_even": "#e0f7fa"
     },
     "CHEMISTRY": {
         "prefix": "kech",
@@ -49,60 +47,81 @@ SUBJECT_TOKENS = {
 
 def generate_subject_master_template(subject_name: str, tokens: dict, output_file: str):
     """
-    Generates a dedicated, subject-tailored Master Typst Template.
+    Generates a dedicated, subject-tailored Master Typst Template with plugable modular components.
     """
-    template_code = f"""// ==============================================================================
-// MASTER TYPST TEMPLATE FOR {subject_name.upper()} (Automated Subject Generator)
-// ==============================================================================
+    prefix = tokens['prefix']
+    primary_color = tokens['primary_color']
 
-#let brand-primary = rgb("{tokens['primary_color']}")
-#let brand-callout-bg = rgb("{tokens['callout_bg']}")
-#let brand-callout-border = rgb("{tokens['callout_border']}")
-#let brand-problem-bg = rgb("{tokens['problem_bg']}")
-#let brand-problem-border = rgb("{tokens['problem_border']}")
-#let brand-table-header = rgb("{tokens['table_header']}")
-#let brand-table-row-even = rgb("{tokens['table_row_even']}")
-
-#let ncert-document(
-  chapter-num: "1",
-  chapter-title: "",
-  body
-) = {{
-  set page(
-    paper: "a4",
-    margin: (top: 2.2cm, bottom: 2.2cm, left: 1.8cm, right: 1.8cm),
-    header: context {{
-      let page-num = counter(page).get().first()
-      if page-num > 1 {{
-        if calc.even(page-num) {{
-          text(size: 9pt, fill: rgb("#4a4a4a"))[#page-num #h(1fr) *{subject_name.upper()}*]
-        }} else {{
-          text(size: 9pt, fill: rgb("#4a4a4a"))[*#upper(chapter-title)* #h(1fr) #page-num]
-        }}
-      }}
-    }},
-    footer: align(center, text(size: 8pt, fill: rgb("#777777"))[Reprint 2026-27])
+    math_opening_block = """
+// 1:1 Chapter Page 1 Opening Header
+#let ncert-page-one-opening(
+  unit-num: "2",
+  title: "RELATIONS AND FUNCTIONS",
+  quote-text: "Mathematics is the indispensable instrument of all physical research. – BERTHELOT"
+) = {
+  v(10pt)
+  grid(
+    columns: (1fr, auto),
+    align: (left + horizon, right + horizon),
+    [
+      #rect(
+        stroke: 0.5pt + rgb("#a0a0a0"),
+        radius: 2pt,
+        fill: rgb("#ffffff"),
+        inset: (x: 8pt, y: 6pt),
+        align(center)[
+          #text(size: 7.5pt, weight: "bold")[QR CODE]\
+          #text(size: 7pt, fill: rgb("#555555"))[11076CH02]
+        ]
+      )
+    ],
+    [
+      #grid(
+        columns: (auto, auto),
+        gutter: 6pt,
+        align: horizon,
+        text(size: 16pt, weight: "medium", fill: rgb("#777777"))[Chapter],
+        rect(
+          fill: brand-primary,
+          radius: 2pt,
+          inset: (x: 10pt, y: 8pt),
+          text(size: 18pt, weight: "bold", fill: rgb("#ffffff"))[#unit-num]
+        )
+      )
+    ]
   )
 
-  set text(
-    font: ("Times New Roman", "Liberation Serif", "DejaVu Serif"),
-    size: 10pt,
-    fill: rgb("#111111")
-  )
+  v(16pt)
 
-  set par(
-    justify: true,
-    leading: 0.65em,
-    first-line-indent: 0pt
-  )
+  align(center)[
+    #rect(
+      width: 100%,
+      radius: 18pt,
+      fill: rgb("#ffffff"),
+      stroke: 2.5pt + rgb("#90a4ae"),
+      inset: (x: 20pt, y: 10pt),
+      align(center)[
+        #text(size: 18pt, weight: "bold", fill: brand-primary)[#upper(title)]
+      ]
+    )
+  ]
 
-  body
-}}
+  v(14pt)
 
+  align(center)[
+    #text(size: 10pt, style: "italic", weight: "bold", fill: brand-primary)[
+      ❖ #quote-text ❖
+    ]
+  ]
+
+  v(16pt)
+}
+""" if prefix == "kemh" else """
 #let ncert-page-one-opening(
   unit-num: "1",
-  title: ""
-) = {{
+  title: "",
+  quote-text: ""
+) = {
   grid(
     columns: (1fr, auto),
     align: (left + horizon, right + horizon),
@@ -125,20 +144,119 @@ def generate_subject_master_template(subject_name: str, tokens: dict, output_fil
   v(4pt)
   line(length: 100%, stroke: 1.5pt + brand-primary)
   v(10pt)
+}
+"""
+
+    template_code = f"""// ==============================================================================
+// MASTER TYPST TEMPLATE FOR {subject_name.upper()} (Automated Subject Generator)
+// ==============================================================================
+
+#let brand-primary = rgb("{tokens['primary_color']}")
+#let brand-callout-bg = rgb("{tokens['callout_bg']}")
+#let brand-callout-border = rgb("{tokens['callout_border']}")
+#let brand-problem-bg = rgb("{tokens['problem_bg']}")
+#let brand-problem-border = rgb("{tokens['problem_border']}")
+#let brand-table-header = rgb("{tokens['table_header']}")
+#let brand-table-row-even = rgb("{tokens['table_row_even']}")
+
+#let ncert-document(
+  chapter-num: "1",
+  chapter-title: "",
+  body
+) = {{
+  set page(
+    paper: "a4",
+    margin: (top: 2.2cm, bottom: 2.2cm, left: 2.2cm, right: 2.2cm),
+    header: context {{
+      let page-num = counter(page).get().first()
+      if page-num > 1 {{
+        if calc.even(page-num) {{
+          text(size: 8.5pt, fill: rgb("#4a4a4a"))[#page-num #h(1fr) *{subject_name.upper()}*]
+        }} else {{
+          text(size: 8.5pt, fill: rgb("#4a4a4a"))[*#upper(chapter-title)* #h(1fr) #page-num]
+        }}
+      }}
+    }},
+    footer: align(center, text(size: 8pt, fill: rgb("#777777"))[Reprint 2026-27])
+  )
+
+  set text(
+    font: ("Times New Roman", "Liberation Serif", "DejaVu Serif"),
+    size: 10.5pt,
+    fill: rgb("#131212")
+  )
+
+  set par(
+    justify: true,
+    leading: 0.68em,
+    first-line-indent: 0pt
+  )
+
+  body
 }}
 
+{math_opening_block}
+
+// Section Headings
 #let ncert-h1(title) = {{
   v(14pt)
-  text(size: 11pt, weight: "bold", fill: brand-primary)[#upper(title)]
+  text(size: 11.5pt, weight: "bold", fill: brand-primary)[#title]
   v(6pt)
 }}
 
 #let ncert-h2(title) = {{
   v(10pt)
-  text(size: 10pt, weight: "bold", fill: brand-primary)[#upper(title)]
+  text(size: 10.5pt, weight: "bold", fill: brand-primary)[#title]
   v(4pt)
 }}
 
+// 1:1 PLUGABLE EXERCISE SECTION MACROS
+#let ncert-exercise-banner(title) = {{
+  v(16pt)
+  align(center)[
+    #rect(
+      radius: 4pt,
+      fill: rgb("#e1f5fe"),
+      stroke: 1.5pt + brand-primary,
+      inset: (x: 22pt, y: 8pt),
+      text(size: 13pt, weight: "bold", fill: brand-primary)[#upper(title)]
+    )
+  ]
+  v(12pt)
+}}
+
+#let ncert-exercise-item(num, body) = {{
+  v(8pt)
+  grid(
+    columns: (24pt, 1fr),
+    gutter: 4pt,
+    align: (left + top, left + top),
+    text(size: 10.5pt, weight: "bold", fill: brand-primary)[#num],
+    text(size: 10.5pt)[#body]
+  )
+}}
+
+#let ncert-sub-item(num, body) = {{
+  v(4pt)
+  pad(left: 24pt)[
+    grid(
+      columns: (26pt, 1fr),
+      gutter: 4pt,
+      align: (left + top, left + top),
+      text(size: 10pt, weight: "bold", fill: brand-primary)[#num],
+      text(size: 10pt)[#body]
+    )
+  ]
+}}
+
+#let ncert-solution(body) = {{
+  v(6pt)
+  text(size: 10.5pt, weight: "bold", fill: brand-primary)[Solution ]
+  text(size: 10.5pt)[#body]
+  v(6pt)
+}}
+
+// Callout & Problem Boxes
 #let ncert-green-box(title: "", body) = {{
   v(10pt)
   rect(
@@ -152,14 +270,10 @@ def generate_subject_master_template(subject_name: str, tokens: dict, output_fil
         #text(size: 10pt, weight: "bold", fill: brand-primary)[#title]
         #v(4pt)
       ]
-      #text(size: 9.5pt)[#body]
+      #text(size: 10pt)[#body]
     ]
   )
   v(10pt)
-}}
-
-#let ncert-full-width-box(title: "", body) = {{
-  ncert-green-box(title: title, body)
 }}
 
 #let ncert-problem-box(title: "", body) = {{
@@ -167,15 +281,15 @@ def generate_subject_master_template(subject_name: str, tokens: dict, output_fil
   rect(
     width: 100%,
     fill: brand-problem-bg,
-    stroke: 1pt + brand-problem-border,
+    stroke: (left: 2.5pt + brand-primary, rest: 0.5pt + rgb("#dddddd")),
     inset: 10pt,
-    radius: 3pt,
+    radius: (right: 3pt),
     [
       #if title != "" [
         #text(size: 10pt, weight: "bold", fill: brand-primary)[#title]
         #v(4pt)
       ]
-      #text(size: 9.5pt)[#body]
+      #text(size: 10pt)[#body]
     ]
   )
   v(10pt)
@@ -218,21 +332,23 @@ def generate_subject_master_template(subject_name: str, tokens: dict, output_fil
         f.write(template_code)
     print(f"[Generated Master Template] {subject_name.upper()} -> {output_file}")
 
-def build_all_subject_templates(base_dir: str = "."):
+def build_all_subject_templates(templates_dir: str):
     """
     Generates dedicated master templates for Mathematics, Chemistry, Physics, and Biology.
     """
+    os.makedirs(templates_dir, exist_ok=True)
     print("=== BUILDING SUBJECT-SPECIFIC MASTER TYPST TEMPLATES ===")
     
     generated_templates = {}
     for subj_name, tokens in SUBJECT_TOKENS.items():
         out_filename = f"{tokens['prefix']}_template.typ"
-        out_path = os.path.join(base_dir, out_filename)
+        out_path = os.path.join(templates_dir, out_filename)
         generate_subject_master_template(subj_name, tokens, out_path)
         generated_templates[tokens['prefix']] = out_path
 
     return generated_templates
 
 if __name__ == "__main__":
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    build_all_subject_templates(BASE_DIR)
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    templates_dir = os.path.join(PROJECT_ROOT, "templates")
+    build_all_subject_templates(templates_dir)
