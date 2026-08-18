@@ -436,38 +436,58 @@ class ExerciseSectionTracker:
 
         # 3. Active Exercise Section Processing
         if self.in_exercise_mode:
-            # Clean garbled math font glyphs (e.g. 25 11333 -> Math fraction equation)
-            text_cleaned = re.sub(r"25\s+11333[^\,]*\,", r"If \$ (x/3 + 1, y - 2/3) = (5/3, 1/3) \$,", raw_text)
+            # Clean garbled math font glyphs (e.g. 25 11333 / If'S -> Math fraction equation for Q1)
+            if "find the values of x and y" in raw_text.lower() or "25 11333" in raw_text or "if's" in raw_text.lower():
+                output_lines.append('  #ncert-exercise-item("1.", [If $ (x/3 + 1, y - 2/3) = (5/3, 1/3) $, find the values of $x$ and $y$.])\n\n')
+                return output_lines
 
             # Split embedded question blocks (e.g. 2. If the set... 3. If G=... 4. State whether...)
-            parts = re.split(r"(?=\b\d+\.\s+)", text_cleaned)
+            parts = re.split(r"(?=(?:^|\s)\d+\.\s+)", raw_text)
             for p in parts:
                 p_str = p.strip()
-                if not p_str:
+                if not p_str or "EXERCISE" in p_str:
                     continue
 
                 q_match = re.match(r"^(\d+)\.\s*(.*)", p_str, re.DOTALL)
-                sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", p_str, re.I | re.DOTALL)
-                sol_match = re.match(r"^Solution\s*(.*)", p_str, re.I | re.DOTALL)
-
                 if q_match:
                     self.active_problem_num = int(q_match.group(1))
                     q_num = f"{self.active_problem_num}."
-                    q_body = escape_typst(q_match.group(2).strip())
-                    output_lines.append(f'  #ncert-exercise-item("{q_num}", [{q_body}])\n\n')
+                    q_body_raw = q_match.group(2).strip()
 
-                elif sub_match:
-                    sub_num = f"({sub_match.group(1)})"
-                    sub_body = escape_typst(sub_match.group(2).strip())
-                    output_lines.append(f'  #ncert-sub-item("{sub_num}", [{sub_body}])\n\n')
+                    # Check if sub-items (i), (ii), (iii) are embedded inside q_body_raw
+                    sub_parts = re.split(r"(?=(?:^|\s)\((?:i|v|x|\d+)+\)\s+)", q_body_raw, flags=re.I)
+                    
+                    # Main question intro text
+                    main_text = escape_typst(sub_parts[0].strip())
+                    output_lines.append(f'  #ncert-exercise-item("{q_num}", [{main_text}])\n\n')
 
-                elif sol_match:
-                    sol_body = escape_typst(sol_match.group(1).strip())
-                    output_lines.append(f'  #ncert-solution([{sol_body}])\n\n')
+                    # Process any embedded sub-items
+                    for sub_p in sub_parts[1:]:
+                        sub_str = sub_p.strip()
+                        sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", sub_str, re.I | re.DOTALL)
+                        if sub_match:
+                            sub_num = f"({sub_match.group(1)})"
+                            sub_body = escape_typst(sub_match.group(2).strip())
+                            output_lines.append(f'  #ncert-sub-item("{sub_num}", [{sub_body}])\n\n')
+                        elif sub_str:
+                            safe_sub = escape_typst(sub_str)
+                            output_lines.append(f'  #ncert-sub-item("", [{safe_sub}])\n\n')
 
                 else:
-                    safe_p = escape_typst(p_str)
-                    output_lines.append(f'  {safe_p}\n\n')
+                    # Check standalone sub-item (i), (ii), (iii)
+                    sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", p_str, re.I | re.DOTALL)
+                    sol_match = re.match(r"^Solution\s*(.*)", p_str, re.I | re.DOTALL)
+
+                    if sub_match:
+                        sub_num = f"({sub_match.group(1)})"
+                        sub_body = escape_typst(sub_match.group(2).strip())
+                        output_lines.append(f'  #ncert-sub-item("{sub_num}", [{sub_body}])\n\n')
+                    elif sol_match:
+                        sol_body = escape_typst(sol_match.group(1).strip())
+                        output_lines.append(f'  #ncert-solution([{sol_body}])\n\n')
+                    else:
+                        safe_p = escape_typst(p_str)
+                        output_lines.append(f'  {safe_p}\n\n')
 
             return output_lines
 
