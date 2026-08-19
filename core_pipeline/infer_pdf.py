@@ -714,9 +714,24 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
     print(f"Iteration Audit Log updated: {log_file}")
 
 if __name__ == "__main__":
+    import sys
+    import glob
+
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    input_pdf = os.path.join(PROJECT_ROOT, "testing_doc", "kemh102.pdf")
+    testing_dir = os.path.join(PROJECT_ROOT, "testing_doc")
     model_path = os.path.join(PROJECT_ROOT, "models", "ncert_classifier.joblib")
     output_dir = os.path.join(PROJECT_ROOT, "output")
-    
-    run_pdf_inference(input_pdf, model_path, output_dir)
+
+    if len(sys.argv) > 1:
+        target_pdfs = [sys.argv[1]]
+    else:
+        target_pdfs = glob.glob(os.path.join(testing_dir, "**", "*.pdf"), recursive=True)
+
+    if not target_pdfs:
+        print(f"No test PDFs found in {testing_dir}!")
+    else:
+        for pdf_path in target_pdfs:
+            print(f"\n========================================================")
+            print(f"RUNNING RECONSTRUCTION FOR: {os.path.basename(pdf_path)}")
+            print(f"========================================================\n")
+            run_pdf_inference(pdf_path, model_path, output_dir)
