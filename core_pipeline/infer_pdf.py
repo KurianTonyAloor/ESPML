@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import glob
 import json
 import datetime
 import numpy as np
@@ -594,7 +595,13 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
             evaluator_final.close()
             eval_txt_path = os.path.relpath(versioned_txt, PROJECT_ROOT)
 
-            print(f"[FIDELITY SCORE BOOST] Pass 1: {pass1_score}% -> Pass 2 (Augmented): {pass2_score}%")
+            print(f"\n=======================================================================")
+            print(f"   AUTOMATIC EVALUATION REPORT GENERATED FOR {os.path.basename(output_pdf_path)}")
+            print(f"=======================================================================")
+            print(f"Composite Reconstruction Fidelity Score: {pass2_score}%")
+            print(f"Versioned Evaluation TXT Report:         {eval_txt_path}")
+            print(f"Latest Pointer Evaluation TXT Report:    {os.path.relpath(latest_txt, PROJECT_ROOT)}")
+            print(f"=======================================================================\n")
 
         except Exception as e:
             print(f"Evaluation feedback loop notice: {e}")
