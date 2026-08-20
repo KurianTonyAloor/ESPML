@@ -344,6 +344,39 @@ class QuantitativePDFEvaluator:
 
         return pic_displacements
 
+    def run_scientific_evaluation(self, output_report_json: str = None) -> dict:
+        page_metrics = self.evaluate_page_count()
+        text_metrics = self.evaluate_text_content()
+        spatial_metrics = self.evaluate_spatial_placement()
+        image_metrics = self.evaluate_image_placement()
+
+        overall_fidelity_score = (
+            (text_metrics["text_sequence_similarity_pct"] * 0.40) +
+            (spatial_metrics["mean_spatial_iou_pct"] * 0.25) +
+            (image_metrics["image_retention_rate_pct"] * 0.20) +
+            (page_metrics["page_density_score"] * 0.15)
+        )
+
+        results = {
+            "evaluation_timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "original_pdf": os.path.basename(self.orig_pdf_path),
+            "recreated_pdf": os.path.basename(self.rec_pdf_path),
+            "composite_reconstruction_fidelity_score_pct": round(overall_fidelity_score, 2),
+            "metrics": {
+                "page_count_analysis": page_metrics,
+                "text_content_analysis": text_metrics,
+                "spatial_placement_analysis": spatial_metrics,
+                "image_placement_analysis": image_metrics
+            }
+        }
+
+        if output_report_json:
+            os.makedirs(os.path.dirname(output_report_json), exist_ok=True)
+            with open(output_report_json, "w", encoding="utf-8") as f:
+                json.dump(results, f, indent=2)
+
+        return results
+
     def export_versioned_txt_report(self, output_txt_path: str) -> str:
         page_metrics = self.evaluate_page_count()
         text_metrics = self.evaluate_text_content()

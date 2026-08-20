@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import json
 import datetime
 import numpy as np
@@ -22,9 +23,8 @@ def escape_typst(text: str) -> str:
 def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir: str = "images"):
     """
     Extracts assets with strict subject-specific rules:
-    - CHEMISTRY (kech): Retains composite visual caption clipping (Fig 1.2, 1.10) & 2-column callouts.
-    - MATHEMATICS (kemh): Filters full-page background images (AreaRatio > 20% or w > 260pt) 
-      AND harvests true isolated Math Figures (Leibniz portrait, Venn diagrams, set circles, cartesian graphs).
+    - CHEMISTRY (kech): Retains composite visual caption clipping & 2-column callouts.
+    - MATHEMATICS (kemh): Filters full-page background images AND harvests true isolated Math Figures.
     """
     os.makedirs(img_dir, exist_ok=True)
     doc = fitz.open(pdf_path)
@@ -39,8 +39,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
         p_area = p_width * p_height
 
         if subject_prefix == "kemh":
-            # 1. MATHEMATICS: Extract Real Isolated Raster Images (Strict AreaRatio <= 20.0%, w <= 260pt, h <= 280pt)
-            # EXCLUDE PAGE 1 HEADER GRAPHICS (y0 < 200pt) like QR codes and Chapter squares which are managed by #ncert-page-one-opening
+            # 1. MATHEMATICS: Extract Real Isolated Raster Images
             img_info = page.get_image_info()
             for idx, info in enumerate(img_info):
                 bbox = [round(v, 1) for v in info["bbox"]]
@@ -50,11 +49,9 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 area = w * h
                 area_ratio = area / p_area
 
-                # Filter out Page 1 header graphics (y0 < 200pt)
                 if page_num == 0 and y0 < 200.0:
                     continue
 
-                # STRICT ISOLATED FIGURE FILTER
                 if w > 25 and h > 25 and w <= 260 and h <= 280 and area_ratio <= 0.20 and x0 >= 0 and y0 >= 0:
                     clip_rect = fitz.Rect(max(0, x0 - 2), max(0, y0 - 2), min(p_width, x1 + 2), min(p_height, y1 + 2))
                     pix = page.get_pixmap(clip=clip_rect, dpi=300)
@@ -75,7 +72,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                         "src": f"images/{img_filename}"
                     })
 
-            # 2. MATHEMATICS: Harvest & Merge Composite Vector Math Graphs (Venn Diagrams, Set Circles, Line Graphs like Fig 2.1)
+            # 2. MATHEMATICS: Harvest & Merge Composite Vector Math Graphs
             drawings = page.get_drawings()
             raw_rects = []
             for d in drawings:
@@ -84,15 +81,13 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 h = r.y1 - r.y0
                 area_ratio = (w * h) / p_area
 
-                # Filter out Page 1 header graphics (y0 < 200pt)
                 if page_num == 0 and r.y0 < 200.0:
                     continue
                 
-                # Allow horizontal/vertical line segments (max(w, h) >= 10pt)
                 if max(w, h) >= 10.0 and max(w, h) <= 380.0 and area_ratio <= 0.25 and r.x0 >= 20 and r.y0 >= 40:
                     raw_rects.append(r)
 
-            # 3. MATHEMATICS: Scan text blocks for Fig X.Y captions (e.g. Fig 2.1) to anchor line diagrams
+            # 3. MATHEMATICS: Scan text blocks for Fig X.Y captions
             fig_caption_rects = []
             blocks = page.get_text("dict")["blocks"]
             for b in blocks:
@@ -101,7 +96,6 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                     fig_m = re.search(r"Fig\s*(\d+\.\d+)", b_text, re.I)
                     if fig_m:
                         fig_rect = fitz.Rect(b["bbox"])
-                        # Search for line drawings within 100pt above the caption
                         near_rects = [r for r in raw_rects if (fig_rect.y0 - 110) <= r.y0 <= (fig_rect.y1 + 10) and abs(r.x0 - fig_rect.x0) < 100]
                         if near_rects:
                             combined = fitz.Rect(
@@ -110,16 +104,13 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                                 max(r.x1 for r in near_rects),
                                 max(r.y1 for r in near_rects)
                             )
-                            # Expand slightly to capture text labels (s, c, b, red, blue)
                             combined = fitz.Rect(max(0, combined.x0 - 25), max(0, combined.y0 - 10), min(p_width, combined.x1 + 25), min(p_height, fig_rect.y1 + 5))
                             fig_caption_rects.append(combined)
 
-            # COMPOSITE BOUNDING BOX MERGER: Merges shapes at same vertical level (y0 gap < 30pt) into ONE unified diagram image
             merged_clusters = list(fig_caption_rects)
             for r in raw_rects:
                 merged = False
                 for i, m_rect in enumerate(merged_clusters):
-                    # Check if r overlaps or is adjacent to m_rect
                     if (m_rect.y0 - 20) <= r.y0 <= (m_rect.y1 + 20) and (m_rect.x0 - 50) <= r.x0 <= (m_rect.x1 + 50):
                         merged_clusters[i] = fitz.Rect(
                             min(m_rect.x0, r.x0),
@@ -132,7 +123,6 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 if not merged:
                     merged_clusters.append(r)
 
-            # Filter out tiny residual points and huge page-wide boxes
             final_clusters = []
             for c in merged_clusters:
                 w = c.x1 - c.x0
@@ -168,7 +158,7 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
                 })
 
         else:
-            # CHEMISTRY (kech) & OTHER SUBJECTS (100% UNCHANGED):
+            # CHEMISTRY (kech) & OTHER SUBJECTS
             blocks = page.get_text("dict")["blocks"]
             for b in blocks:
                 if b.get("type") == 0:
@@ -199,9 +189,6 @@ def extract_subject_specific_assets(pdf_path: str, subject_prefix: str, img_dir:
     return spatial_assets
 
 def extract_features_directly_from_pdf(pdf_path: str):
-    """
-    Extracts text nodes and 9D feature vectors directly from any input PDF.
-    """
     doc = fitz.open(pdf_path)
     nodes = []
     features_list = []
@@ -215,7 +202,7 @@ def extract_features_directly_from_pdf(pdf_path: str):
 
         blocks = page.get_text("dict")["blocks"]
         for b_idx, b in enumerate(blocks):
-            if b.get("type") == 0:  # Text block
+            if b.get("type") == 0:
                 b_rect = fitz.Rect(b["bbox"])
                 b_text = "".join(span["text"] for line in b["lines"] for span in line["spans"]).strip()
                 if not b_text:
@@ -270,141 +257,6 @@ def extract_features_directly_from_pdf(pdf_path: str):
     df = pd.DataFrame(features_list, columns=['font_size', 'is_bold', 'is_italic', 'is_colored', 'x0', 'word_count', 'inside_drawing_box', 'is_upper', 'digit_start'])
     return nodes, df
 
-def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
-    nodes, df = extract_features_directly_from_pdf(pdf_path)
-
-    # Setup Versioned Output Directories
-    typ_dir = os.path.join(output_dir, "typ_files")
-    pdf_dir = os.path.join(output_dir, "pdf_files")
-    os.makedirs(typ_dir, exist_ok=True)
-    os.makedirs(pdf_dir, exist_ok=True)
-
-    log_file = os.path.join(output_dir, "iteration_log.json")
-    iteration_log = []
-    if os.path.exists(log_file):
-        try:
-            with open(log_file, "r", encoding="utf-8") as f:
-                iteration_log = json.load(f)
-        except Exception:
-            iteration_log = []
-
-    iter_count = len(iteration_log) + 1
-    timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    doc_stem = os.path.splitext(os.path.basename(pdf_path))[0]
-
-    versioned_typ_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.typ"
-    versioned_pdf_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.pdf"
-
-    output_typ_path = os.path.join(typ_dir, versioned_typ_filename)
-    output_pdf_path = os.path.join(pdf_dir, versioned_pdf_filename)
-
-    # Detect Subject Prefix
-    base_file = os.path.basename(pdf_path).lower()
-    if base_file.startswith("kemh"):
-        subject_prefix = "kemh"
-        template_name = "kemh_template.typ"
-    elif base_file.startswith("keph"):
-        subject_prefix = "keph"
-        template_name = "keph_template.typ"
-    elif base_file.startswith("kebo"):
-        subject_prefix = "kebo"
-        template_name = "kebo_template.typ"
-    else:
-        subject_prefix = "kech"
-        template_name = "kech_template.typ"
-
-    # 100% Dynamic Metadata Extraction
-    chapter_num = "1"
-    chapter_title = "TEXTBOOK CHAPTER"
-    quote_text = ""
-    quote_author = ""
-
-    for node in nodes[:25]:
-        t = node["text"].strip()
-        ch_m = re.search(r"(?:Chapter|UNIT)\s*(\d+)", t, re.I)
-        if ch_m:
-            chapter_num = ch_m.group(1)
-
-        if len(t) > 3 and chapter_title == "TEXTBOOK CHAPTER":
-            if not re.match(r"^(?:Chapter|UNIT)\s*\d+$", t, re.I) and "REPRINT" not in t.upper():
-                if node["font_size"] >= 14.0 or (t.isupper() and len(t) > 4):
-                    chapter_title = t
-
-        if not quote_text and ("—" in t or "–" in t or "❖" in t or node["is_italic"]):
-            q_m = re.search(r"^(?:[\"“❖]|\s)*(.+?)(?:[\"”❖]|\s)*(?:[–—\-]\s*([A-Z\s\.]{2,30}))?$", t)
-            if q_m and len(q_m.group(1)) > 15:
-                quote_text = q_m.group(1).strip()
-                if q_m.group(2):
-                    quote_author = q_m.group(2).strip()
-
-    # Predict semantic tags using Model 1
-    print(f"[2/4] Predicting semantic layout tags for {len(nodes)} text blocks using Model 1...")
-    model_data = joblib.load(model_path)
-    model = model_data["model"] if isinstance(model_data, dict) else model_data
-    predicted_tags = model.predict(df.values)
-
-    # Extract subject-specific assets
-    spatial_assets = extract_subject_specific_assets(pdf_path, subject_prefix)
-
-    print(f"[3/4] Synthesizing Typst document [Iteration v{iter_count}]: {output_typ_path}")
-    
-    safe_ch_title = escape_typst(chapter_title)
-    safe_quote = escape_typst(f"{quote_text} – {quote_author}" if quote_author else quote_text)
-
-    typst_lines = [
-        f"// Versioned Output v{iter_count} - {timestamp_str} [{template_name}]\n",
-        f'#import "/templates/{template_name}": *\n\n',
-        '#show: ncert-document.with(\n',
-        f'  chapter-num: "{chapter_num}",\n',
-        f'  chapter-title: "{safe_ch_title}"\n',
-        ')\n\n',
-        '#ncert-page-one-opening(\n',
-        f'  unit-num: "{chapter_num}",\n',
-        f'  title: "{safe_ch_title}",\n',
-        f'  quote-text: "{safe_quote}"\n',
-        ')\n\n'
-    ]
-
-    if template_name != "kemh_template.typ":
-        typst_lines.append('#columns(2, gutter: 15pt)[\n')
-
-    all_elements = []
-    for node, tag in zip(nodes, predicted_tags):
-        all_elements.append({
-            "elem_type": "TEXT",
-            "page": node["page"],
-            "y0": node["y0"],
-            "data": node,
-            "tag": tag
-        })
-
-    for asset in spatial_assets:
-        all_elements.append({
-            "elem_type": "IMAGE",
-            "page": asset["page"],
-            "y0": asset["y0"],
-            "data": asset
-        })
-
-    all_elements.sort(key=lambda el: (el["page"], el["y0"]))
-
-    for item in all_elements:
-        if item["elem_type"] == "IMAGE":
-            img = item["data"]
-            img_src = f"/{img['src']}"
-            w_pct = int(img["width_ratio"] * 100) if "width_ratio" in img else 40
-            
-            if img.get("is_right_side"):
-                typst_lines.append(f'  #align(right)[#ncert-figure("{img_src}", caption: "", width: {max(20, min(40, w_pct))}%)]\n\n')
-            else:
-                typst_lines.append(f'  #align(center)[#ncert-figure("{img_src}", caption: "", width: {min(75, max(30, w_pct))}%)]\n\n')
-
-        else:
-            node = item["data"]
-            tag = item["tag"]
-            raw_text = node["text"]
-            safe_text = escape_typst(raw_text)
-
 class ExerciseSectionTracker:
     def __init__(self):
         self.in_exercise_mode = False
@@ -416,28 +268,23 @@ class ExerciseSectionTracker:
     def process_text_node(self, raw_text: str, tag: str) -> list:
         output_lines = []
 
-        # 1. Check for Exercise Banner Start
         ex_banner_match = re.search(r"EXERCISE\s*(\d+\.\d+)", raw_text, re.I)
         if ex_banner_match:
             ex_id = ex_banner_match.group(1)
             self.in_exercise_mode = True
             self.current_exercise_name = f"EXERCISE {ex_id}"
             
-            # Avoid duplicate banner printing
             if ex_id not in self.seen_banners:
                 self.seen_banners.add(ex_id)
                 output_lines.append(f'  #ncert-exercise-banner("{self.current_exercise_name}")\n\n')
             return output_lines
 
-        # 2. Deactivation Criteria: Major Section Heading (e.g. 2.3 Relations)
         if tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+[A-Z]", raw_text):
             self.in_exercise_mode = False
             self.current_exercise_name = ""
             return None
 
-        # 3. Active Exercise Section Processing
         if self.in_exercise_mode:
-            # Question 1 Handler: Clean garbled math font glyphs & emit EXACTLY ONCE
             if ("find the values of x and y" in raw_text.lower() or "25 11333" in raw_text or raw_text.strip() == "1.If") and not self.q1_emitted:
                 if "find the values" in raw_text.lower() or "25 11333" in raw_text:
                     self.q1_emitted = True
@@ -446,14 +293,12 @@ class ExerciseSectionTracker:
             elif raw_text.strip() == "1.If" and self.q1_emitted:
                 return output_lines
 
-            # Split embedded question blocks matching both "2. If" AND no-space "3.If", "4.State", "5.If", "6.If", "7.Let", "8.Let", "9.Let"
             parts = re.split(r"(?=(?:^|\s|\.)\b\d+\.\s*|\b\d+\.[A-Z])", raw_text)
             for p in parts:
                 p_str = p.strip()
                 if not p_str or "EXERCISE" in p_str:
                     continue
 
-                # Match question numbers with or without trailing space (e.g. "2. If..." or "3.If...")
                 q_match = re.match(r"^(\d+)\.\s*(.*)", p_str, re.DOTALL)
                 if not q_match:
                     q_match = re.match(r"^(\d+)\.([A-Z].*)", p_str, re.DOTALL)
@@ -463,19 +308,15 @@ class ExerciseSectionTracker:
                     q_num = f"{self.active_problem_num}."
                     q_body_raw = q_match.group(2).strip()
 
-                    # Skip duplicate Question 1
                     if self.active_problem_num == 1 and self.q1_emitted:
                         continue
 
-                    # Check if sub-items (i), (ii), (iii) are embedded inside q_body_raw
                     sub_parts = re.split(r"(?=(?:^|\s)\((?:i|v|x|\d+)+\)\s*|\b\((?:i|v|x|\d+)+\)[A-Z])", q_body_raw, flags=re.I)
                     
-                    # Main question intro text
                     main_text = escape_typst(sub_parts[0].strip())
                     if main_text:
                         output_lines.append(f'  #ncert-exercise-item("{q_num}", [{main_text}])\n\n')
 
-                    # Process any embedded sub-items
                     for sub_p in sub_parts[1:]:
                         sub_str = sub_p.strip()
                         sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", sub_str, re.I | re.DOTALL)
@@ -491,7 +332,6 @@ class ExerciseSectionTracker:
                             output_lines.append(f'  #ncert-sub-item("", [{safe_sub}])\n\n')
 
                 else:
-                    # Check standalone sub-item (i), (ii), (iii)
                     sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)\s*(.*)", p_str, re.I | re.DOTALL)
                     if not sub_match:
                         sub_match = re.match(r"^\(((?:i|v|x)+|\d+)\)([A-Z].*)", p_str, re.I | re.DOTALL)
@@ -513,94 +353,31 @@ class ExerciseSectionTracker:
 
         return None
 
-def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
-    nodes, df = extract_features_directly_from_pdf(pdf_path)
-
-    # Setup Versioned Output Directories
-    typ_dir = os.path.join(output_dir, "typ_files")
-    pdf_dir = os.path.join(output_dir, "pdf_files")
-    os.makedirs(typ_dir, exist_ok=True)
-    os.makedirs(pdf_dir, exist_ok=True)
-
-    log_file = os.path.join(output_dir, "iteration_log.json")
-    iteration_log = []
-    if os.path.exists(log_file):
-        try:
-            with open(log_file, "r", encoding="utf-8") as f:
-                iteration_log = json.load(f)
-        except Exception:
-            iteration_log = []
-
-    iter_count = len(iteration_log) + 1
-    timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    doc_stem = os.path.splitext(os.path.basename(pdf_path))[0]
-
-    versioned_typ_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.typ"
-    versioned_pdf_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.pdf"
-
-    output_typ_path = os.path.join(typ_dir, versioned_typ_filename)
-    output_pdf_path = os.path.join(pdf_dir, versioned_pdf_filename)
-
-    # Detect Subject Prefix
-    base_file = os.path.basename(pdf_path).lower()
-    if base_file.startswith("kemh"):
-        subject_prefix = "kemh"
-        template_name = "kemh_template.typ"
-    elif base_file.startswith("keph"):
-        subject_prefix = "keph"
-        template_name = "keph_template.typ"
-    elif base_file.startswith("kebo"):
-        subject_prefix = "kebo"
-        template_name = "kebo_template.typ"
-    else:
-        subject_prefix = "kech"
-        template_name = "kech_template.typ"
-
-    # 100% Dynamic Metadata Extraction
-    chapter_num = "1"
-    chapter_title = "TEXTBOOK CHAPTER"
-    quote_text = ""
-    quote_author = ""
-
-    for node in nodes[:25]:
-        t = node["text"].strip()
-        ch_m = re.search(r"(?:Chapter|UNIT)\s*(\d+)", t, re.I)
-        if ch_m:
-            chapter_num = ch_m.group(1)
-
-        if len(t) > 3 and chapter_title == "TEXTBOOK CHAPTER":
-            if not re.match(r"^(?:Chapter|UNIT)\s*\d+$", t, re.I) and "REPRINT" not in t.upper():
-                if node["font_size"] >= 14.0 or (t.isupper() and len(t) > 4):
-                    chapter_title = t
-
-        if not quote_text and ("—" in t or "–" in t or "❖" in t or node["is_italic"]):
-            q_m = re.search(r"^(?:[\"“❖]|\s)*(.+?)(?:[\"”❖]|\s)*(?:[–—\-]\s*([A-Z\s\.]{2,30}))?$", t)
-            if q_m and len(q_m.group(1)) > 15:
-                quote_text = q_m.group(1).strip()
-                if q_m.group(2):
-                    quote_author = q_m.group(2).strip()
-
-    # Predict semantic tags using Model 1
-    print(f"[2/4] Predicting semantic layout tags for {len(nodes)} text blocks using Model 1...")
-    model_data = joblib.load(model_path)
-    model = model_data["model"] if isinstance(model_data, dict) else model_data
-    predicted_tags = model.predict(df.values)
-
-    # Extract subject-specific assets
-    spatial_assets = extract_subject_specific_assets(pdf_path, subject_prefix)
-
-    print(f"[3/4] Synthesizing Typst document [Iteration v{iter_count}]: {output_typ_path}")
-    
+def synthesize_typst_document(
+    nodes: list, predicted_tags: list, spatial_assets: list,
+    template_name: str, chapter_num: str, chapter_title: str,
+    quote_text: str, quote_author: str, output_typ_path: str,
+    scale_factor: float = 1.0
+):
+    """
+    Synthesizes Typst source file with adaptive scale factor feedback adjustments.
+    """
     safe_ch_title = escape_typst(chapter_title)
     safe_quote = escape_typst(f"{quote_text} – {quote_author}" if quote_author else quote_text)
 
+    # Adaptive Spacing Adjustments based on scale_factor feedback
+    v_gap_h1 = max(8, int(14 * scale_factor))
+    v_gap_h2 = max(6, int(10 * scale_factor))
+    par_leading = f"{round(0.68 * max(0.80, scale_factor), 2)}em"
+
     typst_lines = [
-        f"// Versioned Output v{iter_count} - {timestamp_str} [{template_name}]\n",
+        f"// Adaptive Augmented Reconstruction [{template_name}] Scale: {scale_factor:.2f}\n",
         f'#import "/templates/{template_name}": *\n\n',
         '#show: ncert-document.with(\n',
         f'  chapter-num: "{chapter_num}",\n',
         f'  chapter-title: "{safe_ch_title}"\n',
         ')\n\n',
+        f'#set par(leading: {par_leading})\n\n',
         '#ncert-page-one-opening(\n',
         f'  unit-num: "{chapter_num}",\n',
         f'  title: "{safe_ch_title}",\n',
@@ -637,7 +414,8 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
         if item["elem_type"] == "IMAGE":
             img = item["data"]
             img_src = f"/{img['src']}"
-            w_pct = int(img["width_ratio"] * 100) if "width_ratio" in img else 40
+            base_w = int(img["width_ratio"] * 100) if "width_ratio" in img else 40
+            w_pct = int(base_w * min(1.0, scale_factor))
             
             if img.get("is_right_side"):
                 typst_lines.append(f'  #align(right)[#ncert-figure("{img_src}", caption: "", width: {max(20, min(40, w_pct))}%)]\n\n')
@@ -653,16 +431,15 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
             if chapter_title.lower() in raw_text.lower() or (quote_author and quote_author.lower() in raw_text.lower()) or raw_text.startswith("vMathematics"):
                 continue
 
-            # Process through ExerciseSectionTracker state machine
             ex_output = ex_tracker.process_text_node(raw_text, tag)
             if ex_output is not None:
                 typst_lines.extend(ex_output)
                 continue
 
             if tag == "SECTION_HEADING_1" or re.match(r"^\d+\.\d+\s+", raw_text):
-                typst_lines.append(f'  #ncert-h1("{safe_text}")\n\n')
+                typst_lines.append(f'  #v({v_gap_h1}pt)\n  #ncert-h1("{safe_text}")\n\n')
             elif tag == "SECTION_HEADING_2" or re.match(r"^\d+\.\d+\.\d+\s+", raw_text):
-                typst_lines.append(f'  #ncert-h2("{safe_text}")\n\n')
+                typst_lines.append(f'  #v({v_gap_h2}pt)\n  #ncert-h2("{safe_text}")\n\n')
             elif re.match(r"^(Definition|Theorem|Note)\s*\d*", raw_text, re.I):
                 typst_lines.append(f'  #ncert-green-box(title: "", [{safe_text}])\n\n')
             elif tag == "EXERCISE_OR_EXAMPLE" or re.match(r"^(Example|EXERCISES)", raw_text, re.I):
@@ -678,42 +455,160 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
     with open(output_typ_path, "w", encoding="utf-8") as f:
         f.writelines(typst_lines)
 
-    # Maintain latest copies
-    latest_typ = os.path.join(typ_dir, f"reconstructed_{doc_stem}_latest.typ")
-    latest_pdf = os.path.join(pdf_dir, f"reconstructed_{doc_stem}_latest.pdf")
-    with open(latest_typ, "w", encoding="utf-8") as f:
-        f.writelines(typst_lines)
+def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
+    nodes, df = extract_features_directly_from_pdf(pdf_path)
 
-    # Compile PDF using Typst CLI with --root PROJECT_ROOT
-    print(f"[4/4] Compiling versioned PDF [v{iter_count}]: {output_pdf_path}")
+    # Setup Versioned Output Directories
+    typ_dir = os.path.join(output_dir, "typ_files")
+    pdf_dir = os.path.join(output_dir, "pdf_files")
+    os.makedirs(typ_dir, exist_ok=True)
+    os.makedirs(pdf_dir, exist_ok=True)
+
+    log_file = os.path.join(output_dir, "iteration_log.json")
+    iteration_log = []
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, "r", encoding="utf-8") as f:
+                iteration_log = json.load(f)
+        except Exception:
+            iteration_log = []
+
+    iter_count = len(iteration_log) + 1
+    timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    doc_stem = os.path.splitext(os.path.basename(pdf_path))[0]
+
+    versioned_typ_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.typ"
+    versioned_pdf_filename = f"reconstructed_{doc_stem}_v{iter_count}_{timestamp_str}.pdf"
+
+    output_typ_path = os.path.join(typ_dir, versioned_typ_filename)
+    output_pdf_path = os.path.join(pdf_dir, versioned_pdf_filename)
+
+    base_file = os.path.basename(pdf_path).lower()
+    if base_file.startswith("kemh"):
+        subject_prefix = "kemh"
+        template_name = "kemh_template.typ"
+    elif base_file.startswith("keph"):
+        subject_prefix = "keph"
+        template_name = "keph_template.typ"
+    elif base_file.startswith("kebo"):
+        subject_prefix = "kebo"
+        template_name = "kebo_template.typ"
+    else:
+        subject_prefix = "kech"
+        template_name = "kech_template.typ"
+
+    chapter_num = "1"
+    chapter_title = "TEXTBOOK CHAPTER"
+    quote_text = ""
+    quote_author = ""
+
+    for node in nodes[:25]:
+        t = node["text"].strip()
+        ch_m = re.search(r"(?:Chapter|UNIT)\s*(\d+)", t, re.I)
+        if ch_m:
+            chapter_num = ch_m.group(1)
+
+        if len(t) > 3 and chapter_title == "TEXTBOOK CHAPTER":
+            if not re.match(r"^(?:Chapter|UNIT)\s*\d+$", t, re.I) and "REPRINT" not in t.upper():
+                if node["font_size"] >= 14.0 or (t.isupper() and len(t) > 4):
+                    chapter_title = t
+
+        if not quote_text and ("—" in t or "–" in t or "❖" in t or node["is_italic"]):
+            q_m = re.search(r"^(?:[\"“❖]|\s)*(.+?)(?:[\"”❖]|\s)*(?:[–—\-]\s*([A-Z\s\.]{2,30}))?$", t)
+            if q_m and len(q_m.group(1)) > 15:
+                quote_text = q_m.group(1).strip()
+                if q_m.group(2):
+                    quote_author = q_m.group(2).strip()
+
+    print(f"[2/4] Predicting semantic layout tags for {len(nodes)} text blocks using Model 1...")
+    model_data = joblib.load(model_path)
+    model = model_data["model"] if isinstance(model_data, dict) else model_data
+    predicted_tags = model.predict(df.values)
+
+    spatial_assets = extract_subject_specific_assets(pdf_path, subject_prefix)
+
+    # PASS 1: INITIAL UNADJUSTED RECONSTRUCTION (scale_factor = 1.0)
+    print(f"[3/4] [PASS 1] Synthesizing Typst document [Iteration v{iter_count}]: {output_typ_path}")
+    synthesize_typst_document(
+        nodes, predicted_tags, spatial_assets, template_name,
+        chapter_num, chapter_title, quote_text, quote_author,
+        output_typ_path, scale_factor=1.0
+    )
+
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    res = subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, output_typ_path, output_pdf_path], capture_output=True, text=True)
-    subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, latest_typ, latest_pdf], capture_output=True, text=True)
+    print(f"[4/4] [PASS 1] Compiling initial PDF: {output_pdf_path}")
+    res1 = subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, output_typ_path, output_pdf_path], capture_output=True, text=True)
 
-    status = "SUCCESS" if res.returncode == 0 else f"FAILED: {res.stderr}"
-    print(f"PDF Compilation Status: {status}")
+    status = "SUCCESS" if res1.returncode == 0 else f"FAILED: {res1.stderr}"
+    print(f"Pass 1 Compilation Status: {status}")
 
-    # Automatic Scientific Page-by-Page Evaluation
+    # ANALYSIS STEP: RUN QUANTITATIVE EVALUATOR TO DERIVE ADAPTIVE CORRECTION PARAMETERS
+    adaptive_scale = 1.0
+    pass1_score = 0.0
+    pass2_score = 0.0
     eval_txt_path = ""
-    if res.returncode == 0:
+
+    if res1.returncode == 0:
         try:
             sys.path.append(PROJECT_ROOT)
             from evaluation.evaluator import QuantitativePDFEvaluator
             eval_dir = os.path.join(output_dir, "evaluations")
             os.makedirs(eval_dir, exist_ok=True)
             
+            # Run Evaluation on Pass 1 PDF
+            evaluator1 = QuantitativePDFEvaluator(pdf_path, output_pdf_path)
+            res1_eval = evaluator1.run_scientific_evaluation()
+            pass1_score = res1_eval["composite_reconstruction_fidelity_score_pct"]
+            orig_pages = res1_eval["metrics"]["page_count_analysis"]["original_pages"]
+            rec_pages_p1 = res1_eval["metrics"]["page_count_analysis"]["recreated_pages"]
+            evaluator1.close()
+
+            # COMPUTE ADAPTIVE SCALE FEEDBACK FACTOR
+            if rec_pages_p1 > orig_pages:
+                adaptive_scale = round(float(orig_pages) / float(rec_pages_p1), 2)
+                print(f"\n[ANALYSIS STEP FEEDBACK LOOP] Detected page bloat: Original={orig_pages} pages, Pass 1={rec_pages_p1} pages.")
+                print(f"[ADAPTIVE FEEDBACK] Computed Spacing Scale Factor: {adaptive_scale} (Optimizing vertical gaps & paragraph leading)")
+
+                # PASS 2: AUGMENTED SELF-OPTIMIZED RE-SYNTHESIS & COMPILATION
+                print(f"\n[PASS 2 OPTIMIZATION] Re-synthesizing Typst document with scale factor {adaptive_scale}...")
+                synthesize_typst_document(
+                    nodes, predicted_tags, spatial_assets, template_name,
+                    chapter_num, chapter_title, quote_text, quote_author,
+                    output_typ_path, scale_factor=adaptive_scale
+                )
+
+                print(f"[PASS 2 OPTIMIZATION] Compiling augmented optimized PDF: {output_pdf_path}")
+                res2 = subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, output_typ_path, output_pdf_path], capture_output=True, text=True)
+                if res2.returncode == 0:
+                    print(f"Pass 2 Optimization Compilation: SUCCESS!")
+
+            # Final Evaluation & Export Versioned TXT Report
             versioned_txt = os.path.join(eval_dir, f"eval_report_{doc_stem}_v{iter_count}_{timestamp_str}.txt")
             latest_txt = os.path.join(eval_dir, f"eval_report_{doc_stem}_latest.txt")
 
-            evaluator = QuantitativePDFEvaluator(pdf_path, output_pdf_path)
-            evaluator.export_versioned_txt_report(versioned_txt)
-            evaluator.export_versioned_txt_report(latest_txt)
-            evaluator.close()
+            evaluator_final = QuantitativePDFEvaluator(pdf_path, output_pdf_path)
+            res2_eval = evaluator_final.run_scientific_evaluation()
+            pass2_score = res2_eval["composite_reconstruction_fidelity_score_pct"]
+            evaluator_final.export_versioned_txt_report(versioned_txt)
+            evaluator_final.export_versioned_txt_report(latest_txt)
+            evaluator_final.close()
             eval_txt_path = os.path.relpath(versioned_txt, PROJECT_ROOT)
-        except Exception as e:
-            print(f"Evaluation notice: {e}")
 
-    # Record Iteration Audit Log
+            print(f"[FIDELITY SCORE BOOST] Pass 1: {pass1_score}% -> Pass 2 (Augmented): {pass2_score}%")
+
+        except Exception as e:
+            print(f"Evaluation feedback loop notice: {e}")
+
+    # Maintain latest copies
+    latest_typ = os.path.join(typ_dir, f"reconstructed_{doc_stem}_latest.typ")
+    latest_pdf = os.path.join(pdf_dir, f"reconstructed_{doc_stem}_latest.pdf")
+    with open(output_typ_path, "r", encoding="utf-8") as src_f:
+        typ_content = src_f.read()
+    with open(latest_typ, "w", encoding="utf-8") as dst_f:
+        dst_f.write(typ_content)
+    subprocess.run(["typst", "compile", "--root", PROJECT_ROOT, latest_typ, latest_pdf], capture_output=True, text=True)
+
+    # Record Iteration Audit Log with Feedback Analysis
     log_entry = {
         "iteration": iter_count,
         "timestamp": timestamp_str,
@@ -722,6 +617,9 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
         "template_used": template_name,
         "nodes_count": len(nodes),
         "extracted_assets_count": len(spatial_assets),
+        "adaptive_scale_factor_used": adaptive_scale,
+        "pass1_fidelity_score_pct": pass1_score,
+        "augmented_pass2_fidelity_score_pct": pass2_score,
         "typ_path": os.path.relpath(output_typ_path, PROJECT_ROOT),
         "pdf_path": os.path.relpath(output_pdf_path, PROJECT_ROOT),
         "eval_txt_report": eval_txt_path,
@@ -735,9 +633,6 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
     print(f"Iteration Audit Log updated: {log_file}")
 
 if __name__ == "__main__":
-    import sys
-    import glob
-
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     testing_dir = os.path.join(PROJECT_ROOT, "testing_doc")
     model_path = os.path.join(PROJECT_ROOT, "models", "ncert_classifier.joblib")
@@ -753,6 +648,6 @@ if __name__ == "__main__":
     else:
         for pdf_path in target_pdfs:
             print(f"\n========================================================")
-            print(f"RUNNING RECONSTRUCTION FOR: {os.path.basename(pdf_path)}")
+            print(f"RUNNING SELF-OPTIMIZING ADAPTIVE RECONSTRUCTION FOR: {os.path.basename(pdf_path)}")
             print(f"========================================================\n")
             run_pdf_inference(pdf_path, model_path, output_dir)
