@@ -9,7 +9,12 @@ import pymupdf as fitz
 class QuantitativePDFEvaluator:
     """
     Scientific quantitative evaluation engine comparing Original Input PDF vs. Recreated Output PDF.
-    Performs Page-by-Page granular breakdown and exports versioned evaluation .txt reports.
+    Measures 5 core scientific metrics:
+    1. Page Density & Count Ratio (%)
+    2. Text Content Match & Retention Rate (%)
+    3. Spatial Bounding Box Intersection-Over-Union / Placement Accuracy (IoU %)
+    4. Image & Figure Placement Retention Rate (%)
+    5. Granular Paragraph & Picture Displacement Metrics (Delta Page, Delta X pt, Delta Y pt, Delta Width pt, Delta Height pt)
     """
 
     def __init__(self, orig_pdf_path: str, rec_pdf_path: str):
@@ -120,9 +125,6 @@ class QuantitativePDFEvaluator:
         }
 
     def evaluate_page_by_page(self) -> list:
-        """
-        Performs a granular Page-by-Page comparison analysis.
-        """
         page_analysis = []
         max_pages = max(len(self.orig_doc), len(self.rec_doc))
 
@@ -193,12 +195,163 @@ class QuantitativePDFEvaluator:
 
         return page_analysis
 
+    def evaluate_paragraph_displacements(self) -> list:
+        """
+        Calculates exact paragraph displacement metrics (Delta Page, Delta X pt, Delta Y pt).
+        """
+        displacements = []
+        rec_paragraphs = []
+
+        # Index all paragraphs in recreated document
+        for p_idx in range(len(self.rec_doc)):
+            page = self.rec_doc[p_idx]
+            blocks = page.get_text("dict")["blocks"]
+            for b in blocks:
+                if b.get("type") == 0:
+                    t = "".join(span["text"] for line in b["lines"] for span in line["spans"]).strip()
+                    if len(t) > 15:
+                        rec_paragraphs.append({
+                            "page": p_idx + 1,
+                            "bbox": b["bbox"],
+                            "x0": round(b["bbox"][0], 1),
+                            "y0": round(b["bbox"][1], 1),
+                            "text": t
+                        })
+
+        # Compare against original paragraphs
+        for p_idx in range(len(self.orig_doc)):
+            page = self.orig_doc[p_idx]
+            blocks = page.get_text("dict")["blocks"]
+            for b in blocks:
+                if b.get("type") == 0:
+                    orig_t = "".join(span["text"] for line in b["lines"] for span in line["spans"]).strip()
+                    if len(orig_t) > 15:
+                        orig_x0 = round(b["bbox"][0], 1)
+                        orig_y0 = round(b["bbox"][1], 1)
+                        orig_p = p_idx + 1
+
+                        # Find best text match in recreated document
+                        best_match = None
+                        best_sim = 0.0
+                        for rp in rec_paragraphs:
+                            sim = difflib.SequenceMatcher(None, orig_t[:60], rp["text"][:60]).ratio()
+                            if sim > best_sim:
+                                best_sim = sim
+                                best_match = rp
+
+                        if best_match and best_sim > 0.60:
+                            rec_p = best_match["page"]
+                            rec_x0 = best_match["x0"]
+                            rec_y0 = best_match["y0"]
+
+                            delta_page = rec_p - orig_p
+                            delta_x = round(rec_x0 - orig_x0, 1)
+                            delta_y = round(rec_y0 - orig_y0, 1)
+
+                            displacements.append({
+                                "orig_page": orig_p,
+                                "rec_page": rec_p,
+                                "delta_page": delta_page,
+                                "orig_x0": orig_x0,
+                                "rec_x0": rec_x0,
+                                "delta_x_pt": delta_x,
+                                "orig_y0": orig_y0,
+                                "rec_y0": rec_y0,
+                                "delta_y_pt": delta_y,
+                                "match_similarity": round(best_sim * 100.0, 1),
+                                "snippet": orig_t[:55].replace('\n', ' ') + "..."
+                            })
+
+        return displacements
+
+    def evaluate_picture_displacements(self) -> list:
+        """
+        Calculates exact picture/image displacement metrics (Delta Page, Delta Y pt, Delta Width pt, Delta Height pt).
+        """
+        pic_displacements = []
+        rec_images = []
+
+        # Index all images in recreated document
+        for p_idx in range(len(self.rec_doc)):
+            page = self.rec_doc[p_idx]
+            info = page.get_image_info()
+            for idx, img in enumerate(info):
+                bbox = [round(v, 1) for v in img["bbox"]]
+                w = round(bbox[2] - bbox[0], 1)
+                h = round(bbox[3] - bbox[1], 1)
+                if w > 15 and h > 15:
+                    rec_images.append({
+                        "page": p_idx + 1,
+                        "bbox": bbox,
+                        "x0": bbox[0],
+                        "y0": bbox[1],
+                        "width": w,
+                        "height": h
+                    })
+
+        # Compare against original document images
+        for p_idx in range(len(self.orig_doc)):
+            page = self.orig_doc[p_idx]
+            info = page.get_image_info()
+            for idx, img in enumerate(info):
+                bbox = [round(v, 1) for v in img["bbox"]]
+                w = round(bbox[2] - bbox[0], 1)
+                h = round(bbox[3] - bbox[1], 1)
+                
+                # Filter out small watermark dots
+                if w > 20 and h > 20 and (w * h) / (page.rect.width * page.rect.height) <= 0.35:
+                    orig_p = p_idx + 1
+                    orig_x0 = bbox[0]
+                    orig_y0 = bbox[1]
+
+                    # Find closest image in recreated PDF
+                    best_match = None
+                    best_dist = 9999.0
+                    for ri in rec_images:
+                        dist = abs(ri["width"] - w) + abs(ri["height"] - h)
+                        if dist < best_dist:
+                            best_dist = dist
+                            best_match = ri
+
+                    if best_match and best_dist < 80.0:
+                        rec_p = best_match["page"]
+                        rec_x0 = best_match["x0"]
+                        rec_y0 = best_match["y0"]
+                        rec_w = best_match["width"]
+                        rec_h = best_match["height"]
+
+                        delta_page = rec_p - orig_p
+                        delta_x = round(rec_x0 - orig_x0, 1)
+                        delta_y = round(rec_y0 - orig_y0, 1)
+                        delta_w = round(rec_w - w, 1)
+                        delta_h = round(rec_h - h, 1)
+
+                        pic_displacements.append({
+                            "orig_page": orig_p,
+                            "rec_page": rec_p,
+                            "delta_page": delta_page,
+                            "orig_bbox": [orig_x0, orig_y0, round(orig_x0 + w, 1), round(orig_y0 + h, 1)],
+                            "rec_bbox": [rec_x0, rec_y0, round(rec_x0 + rec_w, 1), round(rec_y0 + rec_h, 1)],
+                            "delta_x_pt": delta_x,
+                            "delta_y_pt": delta_y,
+                            "orig_width_pt": w,
+                            "rec_width_pt": rec_w,
+                            "delta_width_pt": delta_w,
+                            "orig_height_pt": h,
+                            "rec_height_pt": rec_h,
+                            "delta_height_pt": delta_h
+                        })
+
+        return pic_displacements
+
     def export_versioned_txt_report(self, output_txt_path: str) -> str:
         page_metrics = self.evaluate_page_count()
         text_metrics = self.evaluate_text_content()
         spatial_metrics = self.evaluate_spatial_placement()
         image_metrics = self.evaluate_image_placement()
         page_by_page = self.evaluate_page_by_page()
+        para_displacements = self.evaluate_paragraph_displacements()
+        pic_displacements = self.evaluate_picture_displacements()
 
         overall_fidelity = (
             (text_metrics["text_sequence_similarity_pct"] * 0.40) +
@@ -209,7 +362,7 @@ class QuantitativePDFEvaluator:
 
         lines = [
             "=======================================================================\n",
-            "      QUANTITATIVE & SCIENTIFIC PAGE-BY-PAGE RECONSTRUCTION REPORT     \n",
+            "   QUANTITATIVE & SCIENTIFIC PAGE-BY-PAGE & ELEMENT DISPLACEMENT REPORT  \n",
             "=======================================================================\n",
             f"Original Document:  {os.path.basename(self.orig_pdf_path)}\n",
             f"Recreated Document: {os.path.basename(self.rec_pdf_path)}\n",
@@ -231,6 +384,22 @@ class QuantitativePDFEvaluator:
             words_str = f"{p['orig_words']} / {p['rec_words']}"
             imgs_str = f"{p['orig_images']} / {p['rec_images']}"
             lines.append(f"{p['page_number']:<6} | {words_str:<12} | {p['text_match_pct']:<12.2f}% | {imgs_str:<12} | {p['page_spatial_iou_pct']:<10.2f}% | {p['alignment_status']:<20}\n")
+
+        lines.append("\n=== 3. GRANULAR PARAGRAPH DISPLACEMENT METRICS LOG ===\n")
+        lines.append(f"{'Orig Pg':<8} | {'Rec Pg':<8} | {'ΔPage':<6} | {'Orig y0':<8} | {'Rec y0':<8} | {'Δy (pt)':<10} | {'Content Snippet':<45}\n")
+        lines.append("-" * 100 + "\n")
+        
+        for pd in para_displacements[:30]:  # Log top 30 paragraph shifts
+            lines.append(f"{pd['orig_page']:<8} | {pd['rec_page']:<8} | {pd['delta_page']:<+6} | {pd['orig_y0']:<8.1f} | {pd['rec_y0']:<8.1f} | {pd['delta_y_pt']:<+10.1f} | {pd['snippet']:<45}\n")
+
+        lines.append("\n=== 4. GRANULAR PICTURE / IMAGE PLACEMENT DISPLACEMENT LOG ===\n")
+        lines.append(f"{'Orig Pg':<8} | {'Rec Pg':<8} | {'ΔPage':<6} | {'Δy (pt)':<10} | {'Orig WxH (pt)':<16} | {'Rec WxH (pt)':<16} | {'ΔWidth (pt)':<12}\n")
+        lines.append("-" * 88 + "\n")
+
+        for pic in pic_displacements[:20]:  # Log picture shifts
+            orig_dim = f"{pic['orig_width_pt']}x{pic['orig_height_pt']}"
+            rec_dim = f"{pic['rec_width_pt']}x{pic['rec_height_pt']}"
+            lines.append(f"{pic['orig_page']:<8} | {pic['rec_page']:<8} | {pic['delta_page']:<+6} | {pic['delta_y_pt']:<+10.1f} | {orig_dim:<16} | {rec_dim:<16} | {pic['delta_width_pt']:<+12.1f}\n")
 
         lines.append("=======================================================================\n")
 
