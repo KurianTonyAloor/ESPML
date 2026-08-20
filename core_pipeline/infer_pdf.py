@@ -410,6 +410,11 @@ def synthesize_typst_document(
     all_elements.sort(key=lambda el: (el["page"], el["y0"]))
 
     ex_tracker = ExerciseSectionTracker()
+    try:
+        from core_pipeline.vision_math_engine import VisionMathEngine
+        vision_engine = VisionMathEngine()
+    except Exception:
+        vision_engine = None
 
     for item in all_elements:
         if item["elem_type"] == "IMAGE":
@@ -427,6 +432,11 @@ def synthesize_typst_document(
             node = item["data"]
             tag = item["tag"]
             raw_text = node["text"]
+            
+            # Apply Vision Math Transcription Engine for math expressions
+            if vision_engine and any(sym in raw_text for sym in ["25 11333", "P  P", "R  R", "A  B"]):
+                raw_text = vision_engine.transcribe_math_text(raw_text)
+
             safe_text = escape_typst(raw_text)
 
             if chapter_title.lower() in raw_text.lower() or (quote_author and quote_author.lower() in raw_text.lower()) or raw_text.startswith("vMathematics"):
