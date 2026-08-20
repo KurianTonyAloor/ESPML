@@ -9,12 +9,7 @@ import pymupdf as fitz
 class QuantitativePDFEvaluator:
     """
     Scientific quantitative evaluation engine comparing Original Input PDF vs. Recreated Output PDF.
-    Measures 5 core scientific metrics:
-    1. Page Density & Count Ratio (%)
-    2. Text Content Match & Retention Rate (%)
-    3. Spatial Bounding Box Intersection-Over-Union / Placement Accuracy (IoU %)
-    4. Image & Figure Placement Retention Rate (%)
-    5. Overall Composite Document Reconstruction Score (0.0 - 100.0%)
+    Performs Page-by-Page granular breakdown and exports versioned evaluation .txt reports.
     """
 
     def __init__(self, orig_pdf_path: str, rec_pdf_path: str):
@@ -124,41 +119,127 @@ class QuantitativePDFEvaluator:
             "image_retention_rate_pct": round(img_retention_rate, 2)
         }
 
-    def run_scientific_evaluation(self, output_report_json: str = None) -> dict:
+    def evaluate_page_by_page(self) -> list:
+        """
+        Performs a granular Page-by-Page comparison analysis.
+        """
+        page_analysis = []
+        max_pages = max(len(self.orig_doc), len(self.rec_doc))
+
+        for p_num in range(max_pages):
+            orig_has_page = p_num < len(self.orig_doc)
+            rec_has_page = p_num < len(self.rec_doc)
+
+            orig_words = 0
+            rec_words = 0
+            orig_imgs = 0
+            rec_imgs = 0
+            page_match_ratio = 0.0
+            page_iou = 0.0
+
+            if orig_has_page:
+                orig_page = self.orig_doc[p_num]
+                orig_text = orig_page.get_text("text")
+                orig_words = len(orig_text.split())
+                orig_imgs = len(orig_page.get_image_info())
+
+            if rec_has_page:
+                rec_page = self.rec_doc[p_num]
+                rec_text = rec_page.get_text("text")
+                rec_words = len(rec_text.split())
+                rec_imgs = len(rec_page.get_image_info())
+
+            if orig_has_page and rec_has_page:
+                seq = difflib.SequenceMatcher(None, orig_text, rec_text)
+                page_match_ratio = seq.ratio() * 100.0
+
+                orig_blocks = [b["bbox"] for b in orig_page.get_text("dict")["blocks"] if b.get("type") == 0]
+                rec_blocks = [b["bbox"] for b in rec_page.get_text("dict")["blocks"] if b.get("type") == 0]
+
+                iou_list = []
+                for ob in orig_blocks:
+                    best_iou = 0.0
+                    for rb in rec_blocks:
+                        iou = self._compute_iou(ob, rb)
+                        if iou > best_iou:
+                            best_iou = iou
+                    iou_list.append(best_iou)
+                page_iou = float(np.mean(iou_list)) * 100.0 if iou_list else 0.0
+
+                if page_match_ratio > 85.0 and abs(orig_words - rec_words) < 15:
+                    status = "EXCELLENT_MATCH"
+                elif page_match_ratio > 50.0:
+                    status = "MODERATE_ALIGNMENT"
+                else:
+                    status = "LAYOUT_SHIFTED"
+
+            elif orig_has_page and not rec_has_page:
+                status = "ORIGINAL_PAGE_OMITTED"
+            else:
+                status = "EXTRA_RECREATED_PAGE"
+
+            page_analysis.append({
+                "page_number": p_num + 1,
+                "orig_words": orig_words,
+                "rec_words": rec_words,
+                "word_delta": abs(rec_words - orig_words),
+                "text_match_pct": round(page_match_ratio, 2),
+                "orig_images": orig_imgs,
+                "rec_images": rec_imgs,
+                "image_delta": abs(rec_imgs - orig_imgs),
+                "page_spatial_iou_pct": round(page_iou, 2),
+                "alignment_status": status
+            })
+
+        return page_analysis
+
+    def export_versioned_txt_report(self, output_txt_path: str) -> str:
         page_metrics = self.evaluate_page_count()
         text_metrics = self.evaluate_text_content()
         spatial_metrics = self.evaluate_spatial_placement()
         image_metrics = self.evaluate_image_placement()
+        page_by_page = self.evaluate_page_by_page()
 
-        # Weighted Composite Reconstruction Fidelity Index (0.0% - 100.0%)
-        # Weights: Text Match (40%), Spatial IoU (25%), Image Retention (20%), Page Density (15%)
-        overall_fidelity_score = (
+        overall_fidelity = (
             (text_metrics["text_sequence_similarity_pct"] * 0.40) +
             (spatial_metrics["mean_spatial_iou_pct"] * 0.25) +
             (image_metrics["image_retention_rate_pct"] * 0.20) +
             (page_metrics["page_density_score"] * 0.15)
         )
 
-        results = {
-            "evaluation_timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "original_pdf": os.path.basename(self.orig_pdf_path),
-            "recreated_pdf": os.path.basename(self.rec_pdf_path),
-            "composite_reconstruction_fidelity_score_pct": round(overall_fidelity_score, 2),
-            "metrics": {
-                "page_count_analysis": page_metrics,
-                "text_content_analysis": text_metrics,
-                "spatial_placement_analysis": spatial_metrics,
-                "image_placement_analysis": image_metrics
-            }
-        }
+        lines = [
+            "=======================================================================\n",
+            "      QUANTITATIVE & SCIENTIFIC PAGE-BY-PAGE RECONSTRUCTION REPORT     \n",
+            "=======================================================================\n",
+            f"Original Document:  {os.path.basename(self.orig_pdf_path)}\n",
+            f"Recreated Document: {os.path.basename(self.rec_pdf_path)}\n",
+            f"Evaluation Date:   {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n",
+            "-----------------------------------------------------------------------\n",
+            f"COMPOSITE RECONSTRUCTION FIDELITY INDEX: {round(overall_fidelity, 2)}%\n\n",
+            "=== 1. EXECUTIVE METRIC SUMMARY ===\n",
+            f"  - Total Pages (Orig / Rec):  {page_metrics['original_pages']} / {page_metrics['recreated_pages']} (Delta: {page_metrics['page_difference_percentage']}%)\n",
+            f"  - Total Words (Orig / Rec):  {text_metrics['original_word_count']} / {text_metrics['recreated_word_count']} (Retention: {text_metrics['word_retention_rate_pct']}%)\n",
+            f"  - Text Sequence Match %:     {text_metrics['text_sequence_similarity_pct']}%\n",
+            f"  - Mean Spatial IoU %:        {spatial_metrics['mean_spatial_iou_pct']}%\n",
+            f"  - Total Images (Orig / Rec): {image_metrics['original_pdf_images_count']} / {image_metrics['recreated_pdf_images_count']} (Retention: {image_metrics['image_retention_rate_pct']}%)\n\n",
+            "=== 2. PAGE-BY-PAGE GRANULAR BREAKDOWN ===\n",
+            f"{'Page':<6} | {'Words (O/R)':<12} | {'Text Match %':<12} | {'Images (O/R)':<12} | {'Page IoU %':<10} | {'Status':<20}\n",
+            "-" * 82 + "\n"
+        ]
 
-        if output_report_json:
-            os.makedirs(os.path.dirname(output_report_json), exist_ok=True)
-            with open(output_report_json, "w", encoding="utf-8") as f:
-                json.dump(results, f, indent=2)
-            print(f"[Quantitative Report Saved] {output_report_json}")
+        for p in page_by_page:
+            words_str = f"{p['orig_words']} / {p['rec_words']}"
+            imgs_str = f"{p['orig_images']} / {p['rec_images']}"
+            lines.append(f"{p['page_number']:<6} | {words_str:<12} | {p['text_match_pct']:<12.2f}% | {imgs_str:<12} | {p['page_spatial_iou_pct']:<10.2f}% | {p['alignment_status']:<20}\n")
 
-        return results
+        lines.append("=======================================================================\n")
+
+        os.makedirs(os.path.dirname(output_txt_path), exist_ok=True)
+        with open(output_txt_path, "w", encoding="utf-8") as f:
+            f.writelines(lines)
+
+        print(f"[Versioned TXT Evaluation Report Saved] {output_txt_path}")
+        return output_txt_path
 
     def close(self):
         self.orig_doc.close()
@@ -171,41 +252,14 @@ if __name__ == "__main__":
     rec_path = sys.argv[2] if len(sys.argv) > 2 else os.path.join(PROJECT_ROOT, "output", "pdf_files", "reconstructed_kemh102_latest.pdf")
 
     evaluator = QuantitativePDFEvaluator(orig_path, rec_path)
-    results = evaluator.run_scientific_evaluation()
-
-    print("\n=======================================================================")
-    print("      QUANTITATIVE & SCIENTIFIC RECONSTRUCTION EVALUATION REPORT       ")
-    print("=======================================================================")
-    print(f"Original PDF:  {results['original_pdf']}")
-    print(f"Recreated PDF: {results['recreated_pdf']}")
-    print(f"Timestamp:     {results['evaluation_timestamp']}")
-    print("-----------------------------------------------------------------------")
-    print(f"OVERALL RECONSTRUCTION FIDELITY SCORE:  {results['composite_reconstruction_fidelity_score_pct']}%\n")
-
-    p_m = results['metrics']['page_count_analysis']
-    print(f"1. PAGE COUNT DENSITY:")
-    print(f"   - Original Pages:   {p_m['original_pages']}")
-    print(f"   - Recreated Pages:  {p_m['recreated_pages']}")
-    print(f"   - Page Delta %:     {p_m['page_difference_percentage']}%")
-    print(f"   - Page Density Score:{p_m['page_density_score']}%\n")
-
-    t_m = results['metrics']['text_content_analysis']
-    print(f"2. TEXT CONTENT ACCURACY:")
-    print(f"   - Original Words:   {t_m['original_word_count']}")
-    print(f"   - Recreated Words:  {t_m['recreated_word_count']}")
-    print(f"   - Sequence Match:   {t_m['text_sequence_similarity_pct']}%")
-    print(f"   - Word Retention:   {t_m['word_retention_rate_pct']}%\n")
-
-    s_m = results['metrics']['spatial_placement_analysis']
-    print(f"3. SPATIAL PLACEMENT (IoU):")
-    print(f"   - Evaluated Blocks: {s_m['total_spatial_text_blocks_evaluated']}")
-    print(f"   - Mean Spatial IoU: {s_m['mean_spatial_iou_pct']}%\n")
-
-    i_m = results['metrics']['image_placement_analysis']
-    print(f"4. IMAGE & FIGURE RETENTION:")
-    print(f"   - Original Images:  {i_m['original_pdf_images_count']}")
-    print(f"   - Recreated Images: {i_m['recreated_pdf_images_count']}")
-    print(f"   - Image Retention:  {i_m['image_retention_rate_pct']}%\n")
-    print("=======================================================================")
-
+    
+    eval_dir = os.path.join(PROJECT_ROOT, "output", "evaluations")
+    timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    doc_stem = os.path.splitext(os.path.basename(orig_path))[0]
+    
+    out_txt = os.path.join(eval_dir, f"eval_report_{doc_stem}_{timestamp_str}.txt")
+    latest_txt = os.path.join(eval_dir, f"eval_report_{doc_stem}_latest.txt")
+    
+    evaluator.export_versioned_txt_report(out_txt)
+    evaluator.export_versioned_txt_report(latest_txt)
     evaluator.close()

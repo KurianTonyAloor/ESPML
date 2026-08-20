@@ -693,6 +693,26 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
     status = "SUCCESS" if res.returncode == 0 else f"FAILED: {res.stderr}"
     print(f"PDF Compilation Status: {status}")
 
+    # Automatic Scientific Page-by-Page Evaluation
+    eval_txt_path = ""
+    if res.returncode == 0:
+        try:
+            sys.path.append(PROJECT_ROOT)
+            from evaluation.evaluator import QuantitativePDFEvaluator
+            eval_dir = os.path.join(output_dir, "evaluations")
+            os.makedirs(eval_dir, exist_ok=True)
+            
+            versioned_txt = os.path.join(eval_dir, f"eval_report_{doc_stem}_v{iter_count}_{timestamp_str}.txt")
+            latest_txt = os.path.join(eval_dir, f"eval_report_{doc_stem}_latest.txt")
+
+            evaluator = QuantitativePDFEvaluator(pdf_path, output_pdf_path)
+            evaluator.export_versioned_txt_report(versioned_txt)
+            evaluator.export_versioned_txt_report(latest_txt)
+            evaluator.close()
+            eval_txt_path = os.path.relpath(versioned_txt, PROJECT_ROOT)
+        except Exception as e:
+            print(f"Evaluation notice: {e}")
+
     # Record Iteration Audit Log
     log_entry = {
         "iteration": iter_count,
@@ -704,6 +724,7 @@ def run_pdf_inference(pdf_path: str, model_path: str, output_dir: str):
         "extracted_assets_count": len(spatial_assets),
         "typ_path": os.path.relpath(output_typ_path, PROJECT_ROOT),
         "pdf_path": os.path.relpath(output_pdf_path, PROJECT_ROOT),
+        "eval_txt_report": eval_txt_path,
         "compilation_status": status
     }
     iteration_log.append(log_entry)
