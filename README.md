@@ -15,6 +15,9 @@ ML Based/
 │   ├── infer.py                       # DOCX Paragraph Inference Engine
 │   └── TSPdf.py                       # 9D Paragraph Feature Extractor
 │
+├── evaluation/              # Scientific Quantitative & Metric Evaluation Framework
+│   └── evaluator.py                   # 5-Metric Quantitative Reconstruction Evaluator
+│
 ├── extraction_tuning/       # Subject Asset Harvesters & Master Template Generators
 │   ├── subject_template_engine.py     # Subject-Specific Master Template Synthesizer
 │   ├── build_master_template.py       # Design Token Extraction & Master Template Generator
@@ -28,12 +31,6 @@ ML Based/
 │   ├── spatial_nodes.json             # Extracted Node Coordinates
 │   └── table_manifest.json            # 1:1 Clean Table Schemas
 │
-├── debugging_tools/         # Inspection, Diagnostics & Preview Generation
-│   ├── debug_image_bboxes.py          # Bounding Box Area Ratio Inspector
-│   ├── inspect_vector_graphs.py       # Math Vector Graph Cluster Analyzer
-│   ├── inspect_kemh102_layout.py      # NCERT Math Page Geometry Inspector
-│   └── render_pdf_page_images.py      # PyMuPDF Page Renderer
-│
 ├── templates/               # Subject Master Typst Design Systems (.typ)
 │   ├── kemh_template.typ              # Mathematics (Royal Teal #00adef, Pill Banner, Single Column)
 │   ├── kech_template.typ              # Chemistry (Header Blue #1b4f9c, Green Notes, Pink Problem Boxes)
@@ -45,9 +42,28 @@ ML Based/
 │   └── ncert_template_model.joblib   # Model 2 Publisher Style Classifier
 │
 ├── Training_DOc/            # Multi-Subject Training Datasets (DOCX & PDF pairs)
-├── testing_doc/             # Testing Dataset PDFs (kemh102.pdf)
+├── testing_doc/             # Testing Dataset PDFs (Mathematics & Chemistry)
 └── images/                  # Extracted 300 DPI Figures & Spatial Vector Graphs
 ```
+
+---
+
+## 📊 Scientific Quantitative Metrics (`evaluation/evaluator.py`)
+
+The evaluation framework measures 5 core quantitative metrics:
+
+1. **Page Count Ratio & Page Difference Percentage ($\Delta \text{Pages}$)**:
+   $$\text{Page Delta \%} = \frac{|\text{Pages}_{\text{recreated}} - \text{Pages}_{\text{original}}|}{\text{Pages}_{\text{original}}} \times 100\%$$
+
+2. **Text Content Sequence Match & Word Retention Rate ($\text{TextMatch}$)**:
+   - Sequence Match Ratio (%) and Word Retention Rate (%).
+
+3. **Spatial Bounding-Box Intersection-Over-Union ($\text{Mean Spatial IoU \%}$)**:
+   $$\text{IoU} = \frac{\text{Area}(B_{\text{orig}} \cap B_{\text{rec}})}{\text{Area}(B_{\text{orig}} \cup B_{\text{rec}})}$$
+
+4. **Image & Figure Placement Retention Rate (%)**
+
+5. **Composite Reconstruction Fidelity Index Score (0.0% - 100.0%)**
 
 ---
 
@@ -55,12 +71,12 @@ ML Based/
 
 ### 1. Run 100% Dynamic PDF Inference
 ```powershell
-python core_pipeline/infer_pdf.py
+python core_pipeline/infer_pdf.py "testing_doc/chemistry/kech101.pdf"
 ```
 
-### 2. Train Dual Models Across All 12 Chapters
+### 2. Run Scientific Quantitative Evaluation Report
 ```powershell
-python core_pipeline/train_dual_models.py
+python evaluation/evaluator.py "testing_doc/chemistry/kech101.pdf" "output/pdf_files/reconstructed_kech101_latest.pdf"
 ```
 
 ### 3. Generate Subject Master Templates
